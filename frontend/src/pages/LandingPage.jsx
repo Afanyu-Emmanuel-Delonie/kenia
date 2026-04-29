@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Navbar from "../components/Navbar";
 import BestSelling from "../components/BestSelling";
 import PromoSection from "../components/PromoSection";
@@ -9,6 +9,30 @@ import Testimonials from "../components/Testimonials";
 import NewsSection from "../components/NewsSection";
 import CraftsmanshipSection from "../components/CraftsmanshipSection";
 import Footer from "../components/Footer";
+
+function Reveal({ children, delay = 0 }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(32px)';
+    el.style.transition = `opacity 0.65s ease ${delay}ms, transform 0.65s ease ${delay}ms`;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.style.opacity = '1';
+          el.style.transform = 'translateY(0)';
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.08 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [delay]);
+  return <div ref={ref}>{children}</div>;
+}
 
 export default function LandingPage() {
   const [showTop, setShowTop] = useState(false);
@@ -170,14 +194,14 @@ export default function LandingPage() {
         </div>
       </div>
 
-      <BestSelling />
-      <PromoSection />
-      <FeaturedCollections />
-      <CTASection />
-      <Testimonials />
-      <NewsSection />
-      <CraftsmanshipSection />
-      <Footer />
+      <Reveal delay={0}><BestSelling /></Reveal>
+      <Reveal delay={0}><PromoSection /></Reveal>
+      <Reveal delay={0}><FeaturedCollections /></Reveal>
+      <Reveal delay={0}><CTASection /></Reveal>
+      <Reveal delay={0}><Testimonials /></Reveal>
+      <Reveal delay={0}><NewsSection /></Reveal>
+      <Reveal delay={0}><CraftsmanshipSection /></Reveal>
+      <Reveal delay={0}><Footer /></Reveal>
 
       {/* Back to Top */}
       <button

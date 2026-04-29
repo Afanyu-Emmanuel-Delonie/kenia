@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getDashboard } from '../../api/services';
 import { useNotification } from '../../context/NotificationContext';
+import useReveal from '../../hooks/useReveal';
 import {
   XAxis, YAxis, Tooltip,
   ResponsiveContainer, BarChart, Bar, Cell,
@@ -137,6 +138,11 @@ export default function DashboardPage() {
   const { success, error } = useNotification();
   const navigate = useNavigate();
 
+  const r0 = useReveal({ delay: 0 });
+  const r1 = useReveal({ delay: 80 });
+  const r2 = useReveal({ delay: 160 });
+  const r3 = useReveal({ delay: 240 });
+
   useEffect(() => {
     getDashboard()
       .then((r) => {
@@ -191,7 +197,7 @@ export default function DashboardPage() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
 
       {/* ── Row 1: KPI ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '1rem' }} className="db-kpi">
+      <div ref={r0} style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '1rem' }} className="db-kpi">
         {[
           { label: 'In Production', value: data.totalActive,    sub: 'active bags',                icon: Layers,        accent: true,  to: '/products'  },
           { label: 'Completed',     value: data.totalArchived,  sub: 'archive-ready',              icon: Package,       accent: false, to: '/products'  },
@@ -212,7 +218,7 @@ export default function DashboardPage() {
       </div>
 
       {/* ── Row 2: Donut + Atelier bars ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: '1rem' }} className="db-row2">
+      <div ref={r1} style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: '1rem' }} className="db-row2">
 
         {/* Donut — pipeline */}
         <Card style={{ display: 'flex', flexDirection: 'column' }}>
@@ -291,7 +297,7 @@ export default function DashboardPage() {
       </div>
 
       {/* ── Row 3: Material health + Recent activity ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.3fr 1fr', gap: '1rem' }} className="db-row3">
+      <div ref={r2} style={{ display: 'grid', gridTemplateColumns: '1.3fr 1fr', gap: '1rem' }} className="db-row3">
 
         {/* Material health */}
         <Card>

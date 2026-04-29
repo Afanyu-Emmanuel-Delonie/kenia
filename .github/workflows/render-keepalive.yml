@@ -1,0 +1,13 @@
+name: Render Keepalive
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Render health endpoint
+        run: curl -fsSL --retry 3 --retry-delay 20 --max-time 180 https://kenia-backend.onrender.com/api/v1/health
