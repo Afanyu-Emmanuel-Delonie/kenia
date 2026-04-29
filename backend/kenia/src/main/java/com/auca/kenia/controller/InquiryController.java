@@ -56,4 +56,11 @@ public class InquiryController {
       @Valid @RequestBody ReplyRequest req) {
     return inquiryService.replyToInquiry(id, req);
   }
+
+  @DeleteMapping("/{id}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @Operation(summary = "Delete an inquiry (staff)")
+  public void delete(@PathVariable Long id) {
+    inquiryService.deleteInquiry(id);
+  }
 }

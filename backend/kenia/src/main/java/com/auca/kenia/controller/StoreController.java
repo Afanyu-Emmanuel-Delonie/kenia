@@ -67,4 +67,11 @@ public class StoreController {
       @RequestParam("file") MultipartFile file) throws IOException {
     return storeService.uploadImage(id, file);
   }
+
+  @DeleteMapping("/{id}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @Operation(summary = "Delete a store listing (admin)")
+  public void delete(@PathVariable Long id) {
+    storeService.deleteListing(id);
+  }
 }

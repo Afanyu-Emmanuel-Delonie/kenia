@@ -32,6 +32,8 @@ export const createMaterial = (data) => api.post('/materials', data);
 export const adjustStock = (id, data) => api.patch(`/materials/${id}/stock`, data);
 export const getLowStock = () => api.get('/materials/low-stock');
 export const deleteMaterial = (id) => api.delete(`/materials/${id}`);
+export const deleteListing = (id) => api.delete(`/store/${id}`);
+export const deleteInquiry = (id) => api.delete(`/inquiries/${id}`);
 
 // ── Store ─────────────────────────────────────────────────────────────────
 export const getStoreListings = () => api.get('/store/all');

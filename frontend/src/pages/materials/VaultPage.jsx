@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { getMaterials, adjustStock, createMaterial } from '../../api/services';
-import { AlertTriangle, CheckCircle, Search, Plus, Minus, X, ImagePlus, Gem } from 'lucide-react';
+import { getMaterials, adjustStock, createMaterial, deleteMaterial } from '../../api/services';
+import { AlertTriangle, CheckCircle, Search, Plus, Minus, X, ImagePlus, Trash2, SlidersHorizontal, ChevronDown, ChevronUp, TrendingUp, TrendingDown } from 'lucide-react';
+import ConfirmDeleteModal from '../../components/ConfirmDeleteModal';
 
 const F = { display: 'Cormorant Garamond, serif', ui: 'Inter, sans-serif', data: 'IBM Plex Mono, monospace' };
 
@@ -143,21 +144,23 @@ function AddMaterialModal({ onClose, onDone }) {
 }
 
 // ── Adjust Stock Modal ─────────────────────────────────────────────────────
-function AdjustModal({ material, onClose, onDone }) {
+function AdjustModal({ material, defaultType, onClose, onDone }) {
   const [delta, setDelta]     = useState('');
   const [reason, setReason]   = useState('');
+  const [type, setType]       = useState(defaultType ?? null);
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState('');
   const inputRef = useRef(null);
 
   useEffect(() => { inputRef.current?.focus(); }, []);
 
-  const submit = async (type) => {
+  const submit = async (t) => {
+    const mode = t ?? type;
     const val = parseFloat(delta);
     if (!val || val <= 0) { setError('Enter a valid positive amount'); return; }
     setLoading(true); setError('');
     try {
-      await adjustStock(material.id, { delta: type === 'add' ? val : -val, reason: reason || undefined });
+      await adjustStock(material.id, { delta: mode === 'add' ? val : -val, reason: reason || undefined });
       onDone();
     } catch {
       setError('Adjustment failed. Try again.');
@@ -174,7 +177,7 @@ function AdjustModal({ material, onClose, onDone }) {
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
           <div>
-            <p style={{ fontFamily: F.data, fontSize: '0.46rem', color: '#888', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '0.3rem', fontWeight: 500 }}>Vault · Adjust</p>
+            <p style={{ fontFamily: F.data, fontSize: '0.6875rem', color: '#888', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '0.3rem', fontWeight: 500 }}>Vault · {type === 'add' ? 'Add Stock' : type === 'remove' ? 'Remove Stock' : 'Adjust'}</p>
             <p style={{ fontFamily: F.ui, fontSize: '1.2rem', fontWeight: 800, color: '#050505', letterSpacing: '-0.03em', lineHeight: 1 }}>{material.name}</p>
           </div>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.2rem', color: '#bbb', display: 'flex' }}
@@ -234,76 +237,138 @@ function AdjustModal({ material, onClose, onDone }) {
 
         {/* Actions */}
         <div style={{ display: 'flex', gap: '0.65rem' }}>
-          <button disabled={loading} onClick={() => submit('remove')} style={{
-            flex: 1, padding: '0.75rem', borderRadius: '8px',
-            border: '1px solid #dc262633', background: '#fef2f2',
-            color: '#dc2626', fontFamily: F.ui, fontSize: '0.8rem', fontWeight: 700,
-            cursor: loading ? 'not-allowed' : 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem',
-            opacity: loading ? 0.5 : 1, transition: 'background 0.15s',
-          }}
-            onMouseEnter={(e) => { if (!loading) e.currentTarget.style.background = '#fee2e2'; }}
-            onMouseLeave={(e) => { if (!loading) e.currentTarget.style.background = '#fef2f2'; }}
-          >
-            <Minus size={13} /> Remove
-          </button>
-          <button disabled={loading} onClick={() => submit('add')} style={{
-            flex: 1, padding: '0.75rem', borderRadius: '8px',
-            border: '1px solid rgba(5,5,5,0.15)', background: '#050505',
-            color: '#FCFCFA', fontFamily: F.ui, fontSize: '0.8rem', fontWeight: 700,
-            cursor: loading ? 'not-allowed' : 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem',
-            opacity: loading ? 0.5 : 1, transition: 'background 0.15s',
-          }}
-            onMouseEnter={(e) => { if (!loading) e.currentTarget.style.background = '#B68D40'; }}
-            onMouseLeave={(e) => { if (!loading) e.currentTarget.style.background = '#050505'; }}
-          >
-            <Plus size={13} /> Add
-          </button>
+          {(!type || type === 'remove') && (
+            <button disabled={loading} onClick={() => submit('remove')} style={{
+              flex: 1, padding: '0.75rem', borderRadius: '8px',
+              border: '1px solid #dc262633', background: type === 'remove' ? '#dc2626' : '#fef2f2',
+              color: type === 'remove' ? '#fff' : '#dc2626', fontFamily: F.ui, fontSize: '0.8rem', fontWeight: 700,
+              cursor: loading ? 'not-allowed' : 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem',
+              opacity: loading ? 0.5 : 1, transition: 'background 0.15s',
+            }}
+              onMouseEnter={(e) => { if (!loading) e.currentTarget.style.background = '#fee2e2'; }}
+              onMouseLeave={(e) => { if (!loading) e.currentTarget.style.background = type === 'remove' ? '#dc2626' : '#fef2f2'; }}
+            >
+              <Minus size={13} /> Remove
+            </button>
+          )}
+          {(!type || type === 'add') && (
+            <button disabled={loading} onClick={() => submit('add')} style={{
+              flex: 1, padding: '0.75rem', borderRadius: '8px',
+              border: '1px solid rgba(5,5,5,0.15)', background: type === 'add' ? '#16a34a' : '#050505',
+              color: '#FCFCFA', fontFamily: F.ui, fontSize: '0.8rem', fontWeight: 700,
+              cursor: loading ? 'not-allowed' : 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem',
+              opacity: loading ? 0.5 : 1, transition: 'background 0.15s',
+            }}
+              onMouseEnter={(e) => { if (!loading) e.currentTarget.style.background = '#B68D40'; }}
+              onMouseLeave={(e) => { if (!loading) e.currentTarget.style.background = type === 'add' ? '#16a34a' : '#050505'; }}
+            >
+              <Plus size={13} /> Add
+            </button>
+          )}
         </div>
       </div>
     </div>
   );
 }
 
+// ── Actions panel (shown below each row/card when expanded) ───────────────
+function ActionsPanel({ m, onAdjust, onDelete }) {
+  const status = getStatus(m);
+  const c = STATUS_CFG[status];
+  return (
+    <div style={{
+      background: '#fafafa', borderTop: '1px solid rgba(5,5,5,0.06)',
+      padding: '0.85rem 1.25rem',
+      display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap',
+    }}>
+      {/* Status badge lives here */}
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: '0.5rem',
+        padding: '0.45rem 0.85rem', borderRadius: '7px',
+        background: c.bg, border: `1px solid ${c.border}`,
+      }}>
+        <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: c.dot, flexShrink: 0 }} />
+        <span style={{ fontFamily: F.data, fontSize: '0.6875rem', color: c.color, letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 700 }}>{c.label}</span>
+      </div>
+
+      <div style={{ width: '1px', height: '20px', background: 'rgba(5,5,5,0.08)', flexShrink: 0 }} />
+
+      <button onClick={() => onAdjust(m, 'add')} style={actionBtn('#f0fdf4', '#16a34a', '#16a34a22')}
+        onMouseEnter={(e) => (e.currentTarget.style.background = '#dcfce7')}
+        onMouseLeave={(e) => (e.currentTarget.style.background = '#f0fdf4')}>
+        <TrendingUp size={13} /> Add Stock
+      </button>
+
+      <button onClick={() => onAdjust(m, 'remove')} style={actionBtn('#fffbeb', '#d97706', '#d9770622')}
+        onMouseEnter={(e) => (e.currentTarget.style.background = '#fef3c7')}
+        onMouseLeave={(e) => (e.currentTarget.style.background = '#fffbeb')}>
+        <TrendingDown size={13} /> Remove Stock
+      </button>
+
+      <button onClick={() => onAdjust(m)} style={actionBtn('#f4f4f4', '#050505', 'rgba(5,5,5,0.1)')}
+        onMouseEnter={(e) => (e.currentTarget.style.background = '#e8e8e8')}
+        onMouseLeave={(e) => (e.currentTarget.style.background = '#f4f4f4')}>
+        <SlidersHorizontal size={13} /> Adjust
+      </button>
+
+      <div style={{ flex: 1 }} />
+
+      <button onClick={() => onDelete(m)} style={actionBtn('#fef2f2', '#dc2626', '#dc262622')}
+        onMouseEnter={(e) => (e.currentTarget.style.background = '#fee2e2')}
+        onMouseLeave={(e) => (e.currentTarget.style.background = '#fef2f2')}>
+        <Trash2 size={13} /> Delete
+      </button>
+    </div>
+  );
+}
+
+const actionBtn = (bg, color, border) => ({
+  display: 'flex', alignItems: 'center', gap: '0.4rem',
+  padding: '0.5rem 0.9rem', borderRadius: '7px', cursor: 'pointer',
+  fontFamily: F.ui, fontSize: '0.8125rem', fontWeight: 600,
+  background: bg, color, border: `1px solid ${border}`,
+  transition: 'background 0.15s',
+});
+
 // ── Desktop table row ──────────────────────────────────────────────────────
-function TableRow({ m, i, onAdjust }) {
-  const [hov, setHov] = useState(false);
+function TableRow({ m, i, onAdjust, onDelete }) {
+  const [open, setOpen] = useState(false);
   const status = getStatus(m);
   return (
-    <tr
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => setHov(false)}
-      style={{ background: hov ? 'rgba(5,5,5,0.02)' : i % 2 === 0 ? '#fff' : '#fafafa', transition: 'background 0.15s' }}
-    >
-      <td style={{ ...td, width: '56px' }}><ImageZone materialId={m.id} name={m.name} /></td>
-      <td style={td}><span style={{ fontFamily: F.ui, fontSize: '0.85rem', color: '#050505', fontWeight: 700 }}>{m.name}</span></td>
-      <td style={td}><span style={{ fontFamily: F.data, fontSize: '0.75rem', color: '#B68D40', letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 600 }}>{m.category}</span></td>
-      <td style={td}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-          <span style={{ fontFamily: F.ui, fontSize: '1.4rem', fontWeight: 800, color: '#050505', lineHeight: 1, letterSpacing: '-0.03em' }}>{parseFloat(m.stockQuantity).toFixed(1)}</span>
-          <span style={{ fontFamily: F.data, fontSize: '0.75rem', color: '#888', letterSpacing: '0.08em', fontWeight: 500 }}>{m.unit}</span>
-          <StockBar qty={m.stockQuantity} threshold={m.lowStockThreshold} />
-        </div>
-      </td>
-      <td style={td}><span style={{ fontFamily: F.data, fontSize: '0.6875rem', color: '#888', letterSpacing: '0.05em', fontWeight: 500 }}>{parseFloat(m.lowStockThreshold).toFixed(1)} {m.unit}</span></td>
-      <td style={td}><span style={{ fontFamily: F.data, fontSize: '0.75rem', color: '#555', letterSpacing: '0.05em', fontWeight: 600 }}>${parseFloat(m.unitCost).toFixed(2)}</span></td>
-      <td style={td}><span style={{ fontFamily: F.ui, fontSize: '0.75rem', color: '#555', fontWeight: 500 }}>{m.provenance ?? '—'}</span></td>
-      <td style={td}><StatusBadge status={status} /></td>
-      <td style={{ ...td, textAlign: 'right' }}>
-        <button onClick={() => onAdjust(m)} style={{
-          padding: '0.32rem 0.8rem', borderRadius: '6px',
-          background: '#050505', border: '1px solid #050505',
-          color: '#FCFCFA', fontFamily: F.ui, fontSize: '0.7rem', fontWeight: 700,
-          cursor: 'pointer', transition: 'background 0.15s',
-        }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = '#B68D40'; e.currentTarget.style.borderColor = '#B68D40'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = '#050505'; e.currentTarget.style.borderColor = '#050505'; }}
-        >
-          Adjust
-        </button>
-      </td>
-    </tr>
+    <>
+      <tr
+        onClick={() => setOpen((v) => !v)}
+        style={{ background: open ? 'rgba(5,5,5,0.02)' : i % 2 === 0 ? '#fff' : '#fafafa', cursor: 'pointer', transition: 'background 0.15s' }}
+      >
+        <td style={{ ...td, width: '56px' }}><ImageZone materialId={m.id} name={m.name} /></td>
+        <td style={td}><span style={{ fontFamily: F.ui, fontSize: '0.875rem', color: '#050505', fontWeight: 700 }}>{m.name}</span></td>
+        <td style={td}><span style={{ fontFamily: F.data, fontSize: '0.75rem', color: '#B68D40', letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 600 }}>{m.category}</span></td>
+        <td style={td}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+            <span style={{ fontFamily: F.ui, fontSize: '1.4rem', fontWeight: 800, color: '#050505', lineHeight: 1, letterSpacing: '-0.03em' }}>{parseFloat(m.stockQuantity).toFixed(1)}</span>
+            <span style={{ fontFamily: F.data, fontSize: '0.75rem', color: '#888', letterSpacing: '0.08em', fontWeight: 500 }}>{m.unit}</span>
+            <StockBar qty={m.stockQuantity} threshold={m.lowStockThreshold} />
+          </div>
+        </td>
+        <td style={td}><span style={{ fontFamily: F.data, fontSize: '0.6875rem', color: '#888', letterSpacing: '0.05em', fontWeight: 500 }}>{parseFloat(m.lowStockThreshold).toFixed(1)} {m.unit}</span></td>
+        <td style={td}><span style={{ fontFamily: F.data, fontSize: '0.75rem', color: '#555', letterSpacing: '0.05em', fontWeight: 600 }}>${parseFloat(m.unitCost).toFixed(2)}</span></td>
+        <td style={td}><span style={{ fontFamily: F.ui, fontSize: '0.75rem', color: '#555', fontWeight: 500 }}>{m.provenance ?? '—'}</span></td>
+        <td style={{ ...td, textAlign: 'right' }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', justifyContent: 'flex-end', fontFamily: F.ui, fontSize: '0.8125rem', color: '#888', fontWeight: 500 }}>
+            Actions {open ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+          </span>
+        </td>
+      </tr>
+      {open && (
+        <tr style={{ background: '#fafafa' }}>
+          <td colSpan={8} style={{ padding: 0, borderBottom: '1px solid rgba(5,5,5,0.05)' }}>
+            <ActionsPanel m={m} onAdjust={onAdjust} onDelete={onDelete} />
+          </td>
+        </tr>
+      )}
+    </>
   );
 }
 
@@ -311,59 +376,56 @@ const td = { padding: '0.85rem 1rem', verticalAlign: 'middle', borderBottom: '1p
 const th = { padding: '0.65rem 1rem', fontFamily: F.data, fontSize: '0.6875rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#050505', fontWeight: 500, textAlign: 'left', borderBottom: '1px solid rgba(5,5,5,0.08)', background: '#fafafa', whiteSpace: 'nowrap' };
 
 // ── Mobile card ────────────────────────────────────────────────────────────
-function MobileCard({ m, onAdjust }) {
+function MobileCard({ m, onAdjust, onDelete }) {
+  const [open, setOpen] = useState(false);
   const status = getStatus(m);
   return (
-    <div style={{
-      background: '#fff', border: '1px solid rgba(5,5,5,0.08)',
-      borderRadius: '12px', padding: '1rem 1.1rem',
-      boxShadow: '0 1px 4px rgba(5,5,5,0.04)',
-    }}>
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '0.75rem', gap: '0.75rem' }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', flex: 1, minWidth: 0 }}>
-          <ImageZone materialId={m.id} name={m.name} />
-          <div style={{ minWidth: 0 }}>
-            <p style={{ fontFamily: F.data, fontSize: '0.75rem', color: '#B68D40', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 600, marginBottom: '0.2rem' }}>{m.category}</p>
-            <p style={{ fontFamily: F.ui, fontSize: '0.95rem', color: '#050505', fontWeight: 700 }}>{m.name}</p>
-          </div>
-        </div>
-        <StatusBadge status={status} />
-      </div>
-
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.65rem' }}>
-        <span style={{ fontFamily: F.ui, fontSize: '1.8rem', fontWeight: 800, color: '#050505', lineHeight: 1, letterSpacing: '-0.04em' }}>{parseFloat(m.stockQuantity).toFixed(1)}</span>
-        <span style={{ fontFamily: F.data, fontSize: '0.75rem', color: '#888', letterSpacing: '0.08em', fontWeight: 500 }}>{m.unit}</span>
-        <div style={{ flex: 1 }}>
-          <StockBar qty={m.stockQuantity} threshold={m.lowStockThreshold} />
-          <p style={{ fontFamily: F.data, fontSize: '0.6875rem', color: '#bbb', letterSpacing: '0.08em', marginTop: '0.3rem', fontWeight: 500 }}>threshold: {parseFloat(m.lowStockThreshold).toFixed(1)} {m.unit}</p>
-        </div>
-      </div>
-
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', gap: '1.25rem' }}>
-          <div>
-            <p style={{ fontFamily: F.data, fontSize: '0.6875rem', color: '#bbb', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '0.15rem', fontWeight: 500 }}>Unit cost</p>
-            <p style={{ fontFamily: F.data, fontSize: '0.75rem', color: '#555', fontWeight: 600 }}>${parseFloat(m.unitCost).toFixed(2)}</p>
-          </div>
-          {m.provenance && (
-            <div>
-              <p style={{ fontFamily: F.data, fontSize: '0.6875rem', color: '#bbb', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '0.15rem', fontWeight: 500 }}>Source</p>
-              <p style={{ fontFamily: F.ui, fontSize: '0.72rem', color: '#555', fontWeight: 500 }}>{m.provenance}</p>
+    <div style={{ background: '#fff', border: `1px solid ${open ? 'rgba(5,5,5,0.18)' : 'rgba(5,5,5,0.08)'}`, borderRadius: '12px', overflow: 'hidden', boxShadow: '0 1px 4px rgba(5,5,5,0.04)', transition: 'border-color 0.15s' }}>
+      {/* Card body */}
+      <div style={{ padding: '1rem 1.1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', marginBottom: '0.75rem', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', flex: 1, minWidth: 0 }}>
+            <ImageZone materialId={m.id} name={m.name} />
+            <div style={{ minWidth: 0 }}>
+              <p style={{ fontFamily: F.data, fontSize: '0.75rem', color: '#B68D40', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 600, marginBottom: '0.2rem' }}>{m.category}</p>
+              <p style={{ fontFamily: F.ui, fontSize: '0.95rem', color: '#050505', fontWeight: 700 }}>{m.name}</p>
             </div>
-          )}
+          </div>
         </div>
-        <button onClick={() => onAdjust(m)} style={{
-          padding: '0.45rem 1rem', borderRadius: '6px',
-          background: '#050505', border: '1px solid #050505',
-          color: '#FCFCFA', fontFamily: F.ui, fontSize: '0.75rem', fontWeight: 700,
-          cursor: 'pointer', transition: 'background 0.15s',
-        }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = '#B68D40'; e.currentTarget.style.borderColor = '#B68D40'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = '#050505'; e.currentTarget.style.borderColor = '#050505'; }}
-        >
-          Adjust
-        </button>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.65rem' }}>
+          <span style={{ fontFamily: F.ui, fontSize: '1.8rem', fontWeight: 800, color: '#050505', lineHeight: 1, letterSpacing: '-0.04em' }}>{parseFloat(m.stockQuantity).toFixed(1)}</span>
+          <span style={{ fontFamily: F.data, fontSize: '0.75rem', color: '#888', letterSpacing: '0.08em', fontWeight: 500 }}>{m.unit}</span>
+          <div style={{ flex: 1 }}>
+            <StockBar qty={m.stockQuantity} threshold={m.lowStockThreshold} />
+            <p style={{ fontFamily: F.data, fontSize: '0.6875rem', color: '#bbb', letterSpacing: '0.08em', marginTop: '0.3rem', fontWeight: 500 }}>threshold: {parseFloat(m.lowStockThreshold).toFixed(1)} {m.unit}</p>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', gap: '1.25rem' }}>
+            <div>
+              <p style={{ fontFamily: F.data, fontSize: '0.6875rem', color: '#bbb', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '0.15rem', fontWeight: 500 }}>Unit cost</p>
+              <p style={{ fontFamily: F.data, fontSize: '0.75rem', color: '#555', fontWeight: 600 }}>${parseFloat(m.unitCost).toFixed(2)}</p>
+            </div>
+            {m.provenance && (
+              <div>
+                <p style={{ fontFamily: F.data, fontSize: '0.6875rem', color: '#bbb', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '0.15rem', fontWeight: 500 }}>Source</p>
+                <p style={{ fontFamily: F.ui, fontSize: '0.8125rem', color: '#555', fontWeight: 500 }}>{m.provenance}</p>
+              </div>
+            )}
+          </div>
+          <button
+            onClick={() => setOpen((v) => !v)}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.5rem 0.9rem', borderRadius: '7px', cursor: 'pointer', fontFamily: F.ui, fontSize: '0.8125rem', fontWeight: 600, background: open ? '#050505' : '#f4f4f4', color: open ? '#FCFCFA' : '#050505', border: '1px solid rgba(5,5,5,0.1)', transition: 'all 0.15s' }}
+          >
+            Actions {open ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+          </button>
+        </div>
       </div>
+
+      {/* Actions panel */}
+      {open && <ActionsPanel m={m} onAdjust={onAdjust} onDelete={onDelete} />}
     </div>
   );
 }
@@ -382,14 +444,29 @@ export default function VaultPage() {
   const [loading, setLoading]     = useState(true);
   const [search, setSearch]       = useState('');
   const [filter, setFilter]       = useState('All');
-  const [adjusting, setAdjusting] = useState(null);
+  const [adjusting, setAdjusting] = useState(null); // { material, type }
   const [showAdd, setShowAdd]     = useState(false);
+
+  const [deleting, setDeleting] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   const load = () => {
     setLoading(true);
     getMaterials().then((r) => setMaterials(Array.isArray(r.data) ? r.data : [])).finally(() => setLoading(false));
   };
   useEffect(() => { load(); }, []);
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(deleteTarget.id);
+    try {
+      await deleteMaterial(deleteTarget.id);
+      setMaterials((prev) => prev.filter((x) => x.id !== deleteTarget.id));
+      setDeleteTarget(null);
+    } finally {
+      setDeleting(null);
+    }
+  };
 
   const filtered = materials.filter((m) => {
     const q = search.toLowerCase();
@@ -477,7 +554,7 @@ export default function VaultPage() {
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr>
-              {['', 'Material', 'Category', 'Stock', 'Threshold', 'Unit Cost', 'Source', 'Status', ''].map((h) => (
+              {['', 'Material', 'Category', 'Stock', 'Threshold', 'Unit Cost', 'Source', ''].map((h) => (
                 <th key={h} style={th}>{h}</th>
               ))}
             </tr>
@@ -486,7 +563,7 @@ export default function VaultPage() {
             {filtered.length === 0 ? (
               <tr><td colSpan={8} style={{ padding: '3rem', textAlign: 'center', fontFamily: F.ui, fontSize: '0.82rem', color: '#bbb', fontWeight: 500 }}>No materials found</td></tr>
             ) : (
-              filtered.map((m, i) => <TableRow key={m.id} m={m} i={i} onAdjust={setAdjusting} />)
+              filtered.map((m, i) => <TableRow key={m.id} m={m} i={i} onAdjust={(mat, type) => setAdjusting({ material: mat, type })} onDelete={setDeleteTarget} />)
             )}
           </tbody>
         </table>
@@ -497,13 +574,24 @@ export default function VaultPage() {
         {filtered.length === 0 ? (
           <p style={{ fontFamily: F.ui, fontSize: '0.82rem', color: '#bbb', fontWeight: 500, textAlign: 'center', padding: '2rem 0' }}>No materials found</p>
         ) : (
-          filtered.map((m) => <MobileCard key={m.id} m={m} onAdjust={setAdjusting} />)
+          filtered.map((m) => <MobileCard key={m.id} m={m} onAdjust={(mat, type) => setAdjusting({ material: mat, type })} onDelete={setDeleteTarget} />)
         )}
       </div>
 
+      {deleteTarget && (
+        <ConfirmDeleteModal
+          title={`Delete "${deleteTarget.name}"`}
+          description={`This will permanently remove ${deleteTarget.name} from the Vault.`}
+          loading={!!deleting}
+          onConfirm={handleDelete}
+          onCancel={() => setDeleteTarget(null)}
+        />
+      )}
+
       {adjusting && (
         <AdjustModal
-          material={adjusting}
+          material={adjusting.material}
+          defaultType={adjusting.type}
           onClose={() => setAdjusting(null)}
           onDone={() => { setAdjusting(null); load(); }}
         />

@@ -65,6 +65,14 @@ public class InquiryService {
 
   // ── Helpers ───────────────────────────────────────────────────────────────
 
+  @Transactional
+  public void deleteInquiry(Long id) {
+    if (!inquiryRepository.existsById(id)) {
+      throw new ResourceNotFoundException("Inquiry not found: " + id);
+    }
+    inquiryRepository.deleteById(id);
+  }
+
   private Inquiry findInquiry(Long id) {
     return inquiryRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("Inquiry not found: " + id));

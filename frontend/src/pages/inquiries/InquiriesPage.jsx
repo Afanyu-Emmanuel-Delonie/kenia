@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { getInquiries, getOpenInquiries } from '../../api/services';
+import { getInquiries, getOpenInquiries, deleteInquiry } from '../../api/services';
 import {
   MessageSquare, Mail, Phone, Clock, CheckCircle,
-  ChevronDown, ChevronUp, Search,
+  ChevronDown, ChevronUp, Search, Trash2,
 } from 'lucide-react';
 
 const F = { display: 'Cormorant Garamond, serif', ui: 'Inter, sans-serif', data: 'IBM Plex Mono, monospace' };
@@ -79,7 +79,7 @@ function ReplyButtons({ inquiry }) {
   );
 }
 
-function InquiryRow({ inquiry, expanded, onToggle }) {
+function InquiryRow({ inquiry, expanded, onToggle, onDelete }) {
   const date = new Date(inquiry.submittedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
   const time = new Date(inquiry.submittedAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
   const open = inquiry.status === 'OPEN';
@@ -161,6 +161,18 @@ function InquiryRow({ inquiry, expanded, onToggle }) {
           )}
 
           <ReplyButtons inquiry={inquiry} />
+          <button onClick={() => onDelete(inquiry)} style={{
+            display: 'flex', alignItems: 'center', gap: '0.4rem',
+            marginTop: '0.75rem', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer',
+            fontFamily: F.ui, fontSize: '0.75rem', fontWeight: 600,
+            background: '#fef2f2', color: '#dc2626', border: '1px solid #dc262633',
+            transition: 'background 0.15s',
+          }}
+            onMouseEnter={(e) => e.currentTarget.style.background = '#fee2e2'}
+            onMouseLeave={(e) => e.currentTarget.style.background = '#fef2f2'}
+          >
+            <Trash2 size={13} /> Delete Inquiry
+          </button>
         </div>
       )}
     </div>
@@ -179,6 +191,15 @@ export default function InquiriesPage() {
     setLoading(true);
     fn().then((r) => setInquiries(Array.isArray(r.data) ? r.data : [])).finally(() => setLoading(false));
   }, [filter]);
+
+  const handleDelete = async (inq) => {
+    if (!window.confirm(`Delete inquiry from "${inq.senderName}"? This cannot be undone.`)) return;
+    try {
+      await deleteInquiry(inq.id);
+      setInquiries((prev) => prev.filter((i) => i.id !== inq.id));
+      setExpanded(null);
+    } catch {}
+  };
 
   const openCount   = inquiries.filter((i) => i.status === 'OPEN').length;
   const closedCount = inquiries.filter((i) => i.status === 'CLOSED').length;
@@ -261,10 +282,21 @@ export default function InquiriesPage() {
                 inquiry={inq}
                 expanded={expanded === inq.id}
                 onToggle={() => setExpanded(expanded === inq.id ? null : inq.id)}
+                onDelete={handleDelete}
               />
             ))}
           </div>
         )
+      )}
+
+      {deleteTarget && (
+        <ConfirmDeleteModal
+          title={`Delete inquiry from "${deleteTarget.senderName}"`}
+          description={`This will permanently remove the inquiry about "${deleteTarget.productTitle}" from ${deleteTarget.senderName}.`}
+          loading={deleting}
+          onConfirm={handleDelete}
+          onCancel={() => setDeleteTarget(null)}
+        />
       )}
 
       <style>{`

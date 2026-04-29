@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { getStoreListings, createListing, updateListing, uploadListingImage, getProducts } from '../../api/services';
+import { getStoreListings, createListing, updateListing, uploadListingImage, getProducts, deleteListing } from '../../api/services';
 import { Package, Plus, X, Search, Eye, EyeOff, Tag, Edit2, ImagePlus, Trash2 } from 'lucide-react';
+import ConfirmDeleteModal from '../../components/ConfirmDeleteModal';
 
 const F = { display: 'Cormorant Garamond, serif', ui: 'Inter, sans-serif', data: 'IBM Plex Mono, monospace' };
 
@@ -246,7 +247,7 @@ function ListingModal({ listing, products, onClose, onDone }) {
   );
 }
 
-function ListingCard({ listing, onEdit }) {
+function ListingCard({ listing, onEdit, onDelete }) {
   return (
     <div style={{
       background: '#fff', border: '1px solid rgba(5,5,5,0.09)', borderRadius: '14px',
@@ -306,6 +307,18 @@ function ListingCard({ listing, onEdit }) {
         >
           <Edit2 size={11} /> Edit
         </button>
+        <button onClick={() => onDelete(listing)} style={{
+          display: 'flex', alignItems: 'center', gap: '0.35rem',
+          padding: '0.45rem 0.9rem', borderRadius: '6px', cursor: 'pointer',
+          fontFamily: F.ui, fontSize: '0.72rem', fontWeight: 600,
+          background: '#fef2f2', color: '#dc2626', border: '1px solid #dc262633',
+          transition: 'background 0.15s',
+        }}
+          onMouseEnter={(e) => e.currentTarget.style.background = '#fee2e2'}
+          onMouseLeave={(e) => e.currentTarget.style.background = '#fef2f2'}
+        >
+          <Trash2 size={11} /> Delete
+        </button>
       </div>
     </div>
   );
@@ -317,7 +330,9 @@ export default function CatalogPage() {
   const [loading, setLoading]   = useState(true);
   const [search, setSearch]     = useState('');
   const [filter, setFilter]     = useState('ALL');
-  const [modal, setModal]       = useState(null);
+  const [modal, setModal]         = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting]   = useState(false);
 
   const load = () => {
     setLoading(true);
@@ -326,6 +341,17 @@ export default function CatalogPage() {
       .finally(() => setLoading(false));
   };
   useEffect(() => { load(); }, []);
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await deleteListing(deleteTarget.id);
+      setListings((prev) => prev.filter((l) => l.id !== deleteTarget.id));
+      setDeleteTarget(null);
+    } catch {}
+    finally { setDeleting(false); }
+  };
 
   const availCount    = listings.filter((l) => l.available).length;
   const unlistedCount = listings.filter((l) => !l.available).length;
@@ -409,8 +435,18 @@ export default function CatalogPage() {
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '1rem' }}>
-          {visible.map((l) => <ListingCard key={l.id} listing={l} onEdit={setModal} />)}
+          {visible.map((l) => <ListingCard key={l.id} listing={l} onEdit={setModal} onDelete={setDeleteTarget} />)}
         </div>
+      )}
+
+      {deleteTarget && (
+        <ConfirmDeleteModal
+          title={`Delete "${deleteTarget.title}"`}
+          description={`This will permanently remove the listing for ${deleteTarget.product?.sku ?? 'this bag'} from the store catalog.`}
+          loading={deleting}
+          onConfirm={handleDelete}
+          onCancel={() => setDeleteTarget(null)}
+        />
       )}
 
       {modal === 'new' && (
