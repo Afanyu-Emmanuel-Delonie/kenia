@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { User, Bell, Shield, Globe, ChevronRight, Check, Camera } from 'lucide-react';
+import { API_BASE } from '../../utils/urls';
 
 const F = { display: 'Cormorant Garamond, serif', ui: 'Inter, sans-serif', data: 'IBM Plex Mono, monospace' };
 
@@ -236,7 +237,7 @@ export default function SettingsPage() {
           {tab === 'system' && (
             <Section title="System" sub="Application and API configuration">
               <Field label="API Base URL">
-                <input defaultValue="http://localhost:8084/api/v1" readOnly style={{ ...inputStyle, background: '#f9f9f7', color: '#888', cursor: 'default' }} />
+                <input defaultValue={API_BASE} readOnly style={{ ...inputStyle, background: '#f9f9f7', color: '#888', cursor: 'default' }} />
               </Field>
               <Field label="Application Version">
                 <input defaultValue="Kenia Atelier v1.0.0" readOnly style={{ ...inputStyle, background: '#f9f9f7', color: '#888', cursor: 'default' }} />

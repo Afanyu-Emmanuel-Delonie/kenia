@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { getStoreListings, createListing, updateListing, uploadListingImage, getProducts, deleteListing } from '../../api/services';
 import { Package, Plus, X, Search, Eye, EyeOff, Tag, Edit2, ImagePlus, Trash2 } from 'lucide-react';
 import ConfirmDeleteModal from '../../components/ConfirmDeleteModal';
+import { API_ORIGIN } from '../../utils/urls';
 
 const F = { display: 'Cormorant Garamond, serif', ui: 'Inter, sans-serif', data: 'IBM Plex Mono, monospace' };
 
@@ -57,7 +58,7 @@ function ListingModal({ listing, products, onClose, onDone }) {
   const [uploading, setUploading] = useState(false);
   const [error, setError]         = useState('');
   const [imgPreview, setImgPreview] = useState(
-    listing?.imagePaths ? `http://localhost:8084/uploads/${listing.imagePaths.split(',')[0]}` : null
+    listing?.imagePaths ? `${API_ORIGIN}/uploads/${listing.imagePaths.split(',')[0]}` : null
   );
   const firstRef = useRef(null);
   const imgRef   = useRef(null);
@@ -265,7 +266,7 @@ function ListingCard({ listing, onEdit, onDelete }) {
         border: '1px solid rgba(5,5,5,0.06)', overflow: 'hidden',
       }}>
         {listing.imagePaths ? (
-          <img src={`http://localhost:8084/uploads/${listing.imagePaths.split(',')[0]}`} alt={listing.title}
+          <img src={`${API_ORIGIN}/uploads/${listing.imagePaths.split(',')[0]}`} alt={listing.title}
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             onError={(e) => { e.target.style.display = 'none'; }} />
         ) : (

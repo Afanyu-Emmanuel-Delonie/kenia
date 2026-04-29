@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import api from '../api/client';
+import { API_BASE } from '../utils/urls';
 
 export function DebugPanel() {
   const { user } = useAuth();
@@ -26,7 +27,7 @@ export function DebugPanel() {
   const testBackend = async () => {
     try {
       // Test without auth first
-      const response = await fetch('http://localhost:8084/api/v1/auth/login', {
+      const response = await fetch(`${API_BASE}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: 'test', password: 'test' })
@@ -53,7 +54,7 @@ export function DebugPanel() {
   const testAuthenticatedEndpoint = async () => {
     try {
       const token = localStorage.getItem('kernia_token');
-      const response = await fetch('http://localhost:8084/api/v1/dashboard', {
+      const response = await fetch(`${API_BASE}/dashboard`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
