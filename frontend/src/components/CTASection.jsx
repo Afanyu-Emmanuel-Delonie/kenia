@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { assetUrl } from '../utils/assets';
 
 export default function CTASection() {
   return (
@@ -37,7 +38,7 @@ export default function CTASection() {
           }}
         >
           <img 
-            src="./src/assets/cta.png" 
+            src={assetUrl('cta.png')} 
             alt="Luxury Handbag"
             loading="lazy"
             decoding="async"

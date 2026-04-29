@@ -1,47 +1,48 @@
 import { Link } from 'react-router-dom';
 import { useState, useRef } from 'react';
+import { assetUrl } from '../utils/assets';
 
 const collections = [
   {
     id: 1,
     name: 'Heritage Collection',
     description: 'Timeless designs rooted in our 1947 legacy',
-    image: './src/assets/promo-1.png',
+    image: assetUrl('promo-1.png'),
     link: '/collections/heritage'
   },
   {
     id: 2,
     name: 'Atelier Noir',
     description: 'Sophisticated darkness meets refined elegance',
-    image: './src/assets/promo-2.png',
+    image: assetUrl('promo-2.png'),
     link: '/collections/noir'
   },
   {
     id: 3,
     name: 'Evening Luxe',
     description: 'Exquisite pieces for distinguished occasions',
-    image: './src/assets/promo-3.png',
+    image: assetUrl('promo-3.png'),
     link: '/collections/evening'
   },
   {
     id: 4,
     name: 'Voyager Series',
     description: 'Luxury redefined for the modern traveler',
-    image: './src/assets/promo-4.png',
+    image: assetUrl('promo-4.png'),
     link: '/collections/voyager'
   },
   {
     id: 5,
     name: 'Artisan Limited',
     description: 'Exclusive pieces by master craftsmen',
-    image: './src/assets/promo-1.png',
+    image: assetUrl('promo-1.png'),
     link: '/collections/artisan'
   },
   {
     id: 6,
     name: 'Signature Classics',
     description: 'Our most coveted and iconic designs',
-    image: './src/assets/promo-2.png',
+    image: assetUrl('promo-2.png'),
     link: '/collections/signature'
   }
 ];
@@ -66,6 +67,8 @@ const CollectionCard = ({ collection }) => (
         alt={collection.name}
         loading="lazy"
         decoding="async"
+        width="800"
+        height="600"
         style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
       />
       <div style={{

@@ -9,6 +9,7 @@ import Testimonials from "../components/Testimonials";
 import NewsSection from "../components/NewsSection";
 import CraftsmanshipSection from "../components/CraftsmanshipSection";
 import Footer from "../components/Footer";
+import { assetUrl } from "../utils/assets";
 
 function Reveal({ children, delay = 0 }) {
   const ref = useRef(null);
@@ -61,7 +62,7 @@ export default function LandingPage() {
       >
         {/* Hero image — eager, high priority for LCP */}
         <img
-          src="./src/assets/hero.png"
+          src={assetUrl("hero.png")}
           alt=""
           fetchPriority="high"
           decoding="async"

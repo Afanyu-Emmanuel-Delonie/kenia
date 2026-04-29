@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { assetUrl } from '../utils/assets';
 
 const PromoCard = ({ image, category, discount, sub, link, isLarge = false }) => (
   <div className="promo-card" style={{
@@ -88,8 +89,8 @@ export default function PromoSection() {
           height: 'clamp(300px, 50vw, 480px)',
         }}
       >
-        <PromoCard
-          image="./src/assets/featured-1.png"
+          <PromoCard
+          image={assetUrl('featured-1.png')}
           category="Women" discount="New Arrivals"
           sub="Discover our latest collection of handcrafted women's accessories, where elegance meets artisanal excellence."
           link="/collections/women" isLarge
@@ -104,13 +105,13 @@ export default function PromoSection() {
           }}
         >
           <PromoCard
-            image="./src/assets/futured-2.png"
+            image={assetUrl('futured-2.png')}
             category="Men" discount="Heritage Line"
             sub="Refined masculinity in every stitch and detail."
             link="/collections/men"
           />
           <PromoCard
-            image="./src/assets/future-3.png"
+            image={assetUrl('future-3.png')}
             category="Accessories" discount="Artisan Crafted"
             sub="Complete your ensemble with our signature accessories."
             link="/collections/accessories"

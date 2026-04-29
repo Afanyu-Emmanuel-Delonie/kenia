@@ -1,3 +1,5 @@
+import { assetUrl } from '../utils/assets';
+
 export default function CraftsmanshipSection() {
   return (
     <section style={{
@@ -148,7 +150,7 @@ export default function CraftsmanshipSection() {
           >
             <div style={{ position: 'relative', overflow: 'hidden' }}>
               <video
-                src="./src/assets/about.mp4"
+                src={assetUrl('about.mp4')}
                 autoPlay
                 muted
                 loop

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import InquiryModal from './InquiryModal';
+import { assetUrl } from '../utils/assets';
 
 const products = [
   {
@@ -8,28 +9,28 @@ const products = [
     name: 'Meridian Tote',
     collection: 'Heritage Collection',
     price: 2850,
-    image: './src/assets/best-selling-1.png'
+    image: assetUrl('best-selling-1.png')
   },
   {
     id: 2,
     name: 'Nocturne Clutch',
     collection: 'Evening Luxe',
     price: 1650,
-    image: './src/assets/best-selling-2.png'
+    image: assetUrl('best-selling-2.png')
   },
   {
     id: 3,
     name: 'Voyager Satchel',
     collection: 'Travel Essentials',
     price: 3200,
-    image: './src/assets/best-selling-3.png'
+    image: assetUrl('best-selling-3.png')
   },
   {
     id: 4,
     name: 'Atelier Briefcase',
     collection: 'Signature Series',
     price: 4500,
-    image: './src/assets/best-selling-4.png'
+    image: assetUrl('best-selling-4.png')
   }
 ];
 
@@ -52,6 +53,8 @@ const ProductCard = ({ product, onEnquire }) => {
         alt={product.name}
         loading="lazy"
         decoding="async"
+        width="800"
+        height="600"
         style={{
           width: '100%', height: '100%',
           objectFit: 'cover', display: 'block',
