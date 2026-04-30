@@ -6,6 +6,11 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
+  if (config.skipAuth) {
+    delete config.headers?.Authorization;
+    return config;
+  }
+
   const token = localStorage.getItem('kernia_token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;

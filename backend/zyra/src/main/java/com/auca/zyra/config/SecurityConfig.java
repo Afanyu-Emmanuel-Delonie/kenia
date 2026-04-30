@@ -45,13 +45,18 @@ public class SecurityConfig {
   private static final String[] PUBLIC_GET_PATHS = {
       "/store",
       "/store/*",
-      "/store/all"
+      "/store/all",
+      "/api/v1/store",
+      "/api/v1/store/*",
+      "/api/v1/store/all"
   };
 
   /** Public customer-action endpoints (place order, track, inquire). */
   private static final String[] PUBLIC_POST_PATHS = {
       "/orders",
-      "/inquiries"
+      "/inquiries",
+      "/api/v1/orders",
+      "/api/v1/inquiries"
   };
 
   @Bean
@@ -61,6 +66,7 @@ public class SecurityConfig {
         .cors(cors -> cors.configurationSource(corsSource()))
         .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(auth -> auth
+            .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
             .requestMatchers(PUBLIC_PATHS).permitAll()
             .requestMatchers(HttpMethod.GET, PUBLIC_GET_PATHS).permitAll()
             .requestMatchers(HttpMethod.POST, PUBLIC_POST_PATHS).permitAll()

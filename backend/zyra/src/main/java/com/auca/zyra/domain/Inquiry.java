@@ -22,8 +22,8 @@ public class Inquiry {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @ManyToOne(fetch = FetchType.LAZY, optional = false)
-  @JoinColumn(name = "listing_id", nullable = false)
+  @ManyToOne(fetch = FetchType.LAZY, optional = true)
+  @JoinColumn(name = "listing_id", nullable = true)
   private StoreListing listing;
 
   @Column(nullable = false)

@@ -24,11 +24,12 @@ public class InquiryService {
   /** Public — no authentication required. */
   @Transactional
   public InquiryResponse submitInquiry(SubmitInquiryRequest req) {
-    StoreListing listing = listingRepository.findById(req.listingId())
-        .orElseThrow(() -> new ResourceNotFoundException("Listing not found: " + req.listingId()));
-
     Inquiry inquiry = new Inquiry();
-    inquiry.setListing(listing);
+    if (req.listingId() != null) {
+      StoreListing listing = listingRepository.findById(req.listingId())
+          .orElseThrow(() -> new ResourceNotFoundException("Listing not found: " + req.listingId()));
+      inquiry.setListing(listing);
+    }
     inquiry.setSenderName(req.senderName());
     inquiry.setSenderEmail(req.senderEmail());
     inquiry.setSenderPhone(req.senderPhone());
@@ -81,8 +82,8 @@ public class InquiryService {
   private InquiryResponse toResponse(Inquiry i) {
     return new InquiryResponse(
         i.getId(),
-        i.getListing().getId(),
-        i.getListing().getTitle(),
+        i.getListing() == null ? null : i.getListing().getId(),
+        i.getListing() == null ? "General enquiry" : i.getListing().getTitle(),
         i.getSenderName(),
         i.getSenderEmail(),
         i.getSenderPhone(),

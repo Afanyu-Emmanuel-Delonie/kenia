@@ -3,9 +3,10 @@ import { useState, useEffect } from "react";
 import ContactModal from "./ContactModal";
 
 const navLinks = [
-  { label: "Collections", to: "/collections" },
-  { label: "Craftsmanship", to: "/craftsmanship" },
-  { label: "About", to: "/about" },
+  { label: "Studio", target: "top" },
+  { label: "Collections", target: "collections" },
+  { label: "Craftsmanship", target: "craftsmanship" },
+  { label: "About", target: "about" },
 ];
 
 function UnavailablePopup({ label, onClose }) {
@@ -108,6 +109,12 @@ export default function Navbar() {
     padding: 0,
     transition: "color 0.3s ease",
     color: "rgba(252,252,250,0.45)",
+  };
+
+  const scrollToSection = (target) => {
+    const ele = document.getElementById(target);
+    if (!ele) return;
+    ele.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   return (
@@ -433,12 +440,12 @@ export default function Navbar() {
             marginBottom: "4rem",
           }}
         >
-          {navLinks.map(({ label }, i) => (
+          {navLinks.map(({ label, target }, i) => (
             <button
               key={label}
               onClick={() => {
                 setIsMenuOpen(false);
-                setUnavailable(label);
+                window.setTimeout(() => scrollToSection(target), 70);
               }}
               style={{
                 fontFamily: "var(--font-display)",

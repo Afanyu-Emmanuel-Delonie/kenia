@@ -16,18 +16,18 @@ function Reveal({ children, delay = 0 }) {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    el.style.opacity = '0';
-    el.style.transform = 'translateY(32px)';
+    el.style.opacity = "0";
+    el.style.transform = "translateY(32px)";
     el.style.transition = `opacity 0.65s ease ${delay}ms, transform 0.65s ease ${delay}ms`;
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          el.style.opacity = '1';
-          el.style.transform = 'translateY(0)';
+          el.style.opacity = "1";
+          el.style.transform = "translateY(0)";
           observer.disconnect();
         }
       },
-      { threshold: 0.08 }
+      { threshold: 0.08 },
     );
     observer.observe(el);
     return () => observer.disconnect();
@@ -40,14 +40,15 @@ export default function LandingPage() {
 
   useEffect(() => {
     const onScroll = () => setShowTop(window.scrollY > 400);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   return (
     <>
       <Navbar />
       <div
+        id="top"
         className="hero-section"
         style={{
           minHeight: "100vh",
@@ -58,6 +59,7 @@ export default function LandingPage() {
           justifyContent: "center",
           alignItems: "center",
           padding: "0 1rem",
+          scrollMarginTop: "80px",
         }}
       >
         {/* Hero image — eager, high priority for LCP */}
@@ -68,13 +70,22 @@ export default function LandingPage() {
           decoding="async"
           aria-hidden="true"
           style={{
-            position: "absolute", inset: 0,
-            width: "100%", height: "100%",
-            objectFit: "cover", zIndex: 0,
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            zIndex: 0,
           }}
         />
-        <div style={{ position: "absolute", inset: 0, background: "rgba(5,5,5,0.45)", zIndex: 1 }} />
-
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "rgba(5,5,5,0.45)",
+            zIndex: 1,
+          }}
+        />
 
         {/* Main Content */}
         <div
@@ -195,40 +206,62 @@ export default function LandingPage() {
         </div>
       </div>
 
-      <Reveal delay={0}><BestSelling /></Reveal>
-      <Reveal delay={0}><PromoSection /></Reveal>
-      <Reveal delay={0}><FeaturedCollections /></Reveal>
-      <Reveal delay={0}><CTASection /></Reveal>
-      <Reveal delay={0}><Testimonials /></Reveal>
-      <Reveal delay={0}><NewsSection /></Reveal>
-      <Reveal delay={0}><CraftsmanshipSection /></Reveal>
-      <Reveal delay={0}><Footer /></Reveal>
+      <Reveal delay={0}>
+        <BestSelling />
+      </Reveal>
+      <Reveal delay={0}>
+        <PromoSection />
+      </Reveal>
+      <Reveal delay={0}>
+        <FeaturedCollections />
+      </Reveal>
+      <Reveal delay={0}>
+        <CTASection />
+      </Reveal>
+      <Reveal delay={0}>
+        <Testimonials />
+      </Reveal>
+      <Reveal delay={0}>
+        <NewsSection />
+      </Reveal>
+      <Reveal delay={0}>
+        <CraftsmanshipSection />
+      </Reveal>
+      <Reveal delay={0}>
+        <Footer />
+      </Reveal>
 
       {/* Back to Top */}
       <button
-        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         aria-label="Back to top"
         style={{
-          position: 'fixed',
-          bottom: '2rem',
-          right: '2rem',
-          width: '44px',
-          height: '44px',
-          background: 'var(--kernia-obsidian)',
-          border: '1px solid var(--kernia-gold)',
-          color: 'var(--kernia-gold)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          cursor: 'pointer',
+          position: "fixed",
+          bottom: "2rem",
+          right: "2rem",
+          width: "44px",
+          height: "44px",
+          background: "var(--kernia-obsidian)",
+          border: "1px solid var(--kernia-gold)",
+          color: "var(--kernia-gold)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          cursor: "pointer",
           zIndex: 999,
           opacity: showTop ? 1 : 0,
-          pointerEvents: showTop ? 'auto' : 'none',
-          transition: 'opacity 0.3s ease',
+          pointerEvents: showTop ? "auto" : "none",
+          transition: "opacity 0.3s ease",
         }}
       >
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-          <path d="M7 11V3M3 7l4-4 4 4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+          <path
+            d="M7 11V3M3 7l4-4 4 4"
+            stroke="currentColor"
+            strokeWidth="1.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         </svg>
       </button>
 

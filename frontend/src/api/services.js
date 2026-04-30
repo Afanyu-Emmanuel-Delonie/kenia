@@ -55,4 +55,5 @@ export const updateOrderStatus = (id, data) => api.patch(`/orders/${id}/status`,
 export const getInquiries = () => api.get('/inquiries');
 export const getOpenInquiries = () => api.get('/inquiries/open');
 export const replyInquiry = (id, data) => api.post(`/inquiries/${id}/reply`, data);
-export const submitInquiry = (data) => api.post('/inquiries', data);
+export const submitInquiry = (data) =>
+  api.post('/inquiries', data, { skipAuth: true });
