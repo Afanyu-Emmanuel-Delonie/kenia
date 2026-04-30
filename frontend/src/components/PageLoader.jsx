@@ -28,7 +28,7 @@ export default function PageLoader({ onDone }) {
         letterSpacing: '0.06em',
         lineHeight: 1,
         userSelect: 'none',
-      }}>Kenia</p>
+      }}>Zyra</p>
 
       {/* Thin animated underline */}
       <div style={{ width: '48px', height: '1px', background: 'rgba(5,5,5,0.12)', position: 'relative', overflow: 'hidden' }}>

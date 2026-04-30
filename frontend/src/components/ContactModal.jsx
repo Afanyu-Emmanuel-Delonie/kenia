@@ -278,7 +278,7 @@ export default function ContactModal({ onClose }) {
                     background: 'rgba(192,57,43,0.05)',
                   }}>
                     {listings.length === 0
-                      ? 'No listings available at the moment. Please email us directly at atelier@kenia.com'
+                      ? 'No listings available at the moment. Please email us directly at atelier@zyra.com'
                       : 'Something went wrong. Please try again or email us directly.'}
                   </p>
                 )}
@@ -305,8 +305,8 @@ export default function ContactModal({ onClose }) {
                 {/* Direct contact */}
                 <p style={{ fontFamily: 'var(--font-ui)', fontSize: '0.75rem', fontWeight: 300, color: 'rgba(5,5,5,0.4)', textAlign: 'center', lineHeight: 1.6 }}>
                   Or reach us directly at{' '}
-                  <a href="mailto:atelier@kenia.com" style={{ color: 'var(--kernia-gold)', textDecoration: 'none' }}>
-                    atelier@kenia.com
+                  <a href="mailto:atelier@zyra.com" style={{ color: 'var(--kernia-gold)', textDecoration: 'none' }}>
+                    atelier@zyra.com
                   </a>
                 </p>
               </div>

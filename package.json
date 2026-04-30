@@ -1,4 +1,5 @@
 {
+  "name": "zyra",
   "dependencies": {
     "@tailwindcss/vite": "^4.2.4",
     "tailwindcss": "^4.2.4"

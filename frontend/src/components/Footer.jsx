@@ -29,7 +29,7 @@ export default function Footer() {
               marginBottom: '1.5rem',
               letterSpacing: '-0.01em',
             }}>
-              Kenia
+              Zyra
             </h3>
             <p style={{
               fontFamily: 'var(--font-ui)',
@@ -239,7 +239,7 @@ export default function Footer() {
                   fontWeight: 300,
                   color: 'rgba(252,252,250,0.8)',
                 }}>
-                  atelier@kenia.com
+                  atelier@Zyra.com
                 </p>
               </div>
               <div>
@@ -371,7 +371,7 @@ export default function Footer() {
             fontWeight: 300,
             color: 'rgba(252,252,250,0.6)',
           }}>
-            © 2024 Kenia. All rights reserved.
+            © 2024 Zyra. All rights reserved.
           </p>
           <div 
             className="footer-links"

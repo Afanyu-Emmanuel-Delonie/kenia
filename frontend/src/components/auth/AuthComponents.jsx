@@ -49,7 +49,7 @@ export function AuthLayout({ children, locked = false }) {
         fontFamily: 'Cormorant Garamond, serif', fontSize: '3rem', fontWeight: 600,
         color: '#050505', letterSpacing: '-0.02em', lineHeight: 1, marginBottom: '0.3rem',
       }}>
-        Kenia
+        Zyra
       </h1>
       <p style={{
         fontFamily: 'IBM Plex Mono, monospace', fontSize: '0.52rem', color: '#B68D40',

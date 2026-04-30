@@ -123,7 +123,7 @@ function SidebarInner({ collapsed, onClose }) {
                 fontFamily: 'Cormorant Garamond, serif', fontSize: '1.35rem',
                 fontWeight: 600, color: '#FCFCFA', letterSpacing: '-0.01em', lineHeight: 1,
                 marginBottom: '0.2rem',
-              }}>Kenia</p>
+              }}>Zyra</p>
               <p style={{
                 fontFamily: 'IBM Plex Mono, monospace', fontSize: '0.5rem',
                 color: 'rgba(182,141,64,0.7)', letterSpacing: '0.25em', textTransform: 'uppercase',

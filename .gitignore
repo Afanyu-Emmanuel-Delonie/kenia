@@ -1,9 +1,9 @@
 # ── Secrets ───────────────────────────────────────────────────────────────────
 .env
-backend/kenia/.env
+backend/zyra/.env
 
 # ── Java / Maven ──────────────────────────────────────────────────────────────
-backend/kenia/target/
+backend/zyra/target/
 *.class
 *.jar
 *.war

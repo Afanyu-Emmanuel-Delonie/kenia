@@ -1,8 +1,8 @@
-# Kenia — Luxury Leather Goods Management System
+# Zyra — Luxury Leather Goods Management System
 
 > Handcrafted since 1947. Managed with precision since 2026.
 
-Kenia is a full-stack web application that digitises the entire lifecycle of a luxury leather goods brand — from raw material procurement and artisan production tracking, through quality assurance and public store listing, to customer orders and inquiries. It implements the **Digital Twin** concept: every physical bag has a single corresponding software record that follows it from the cutting table to the customer's hands.
+Zyra is a full-stack web application that digitises the entire lifecycle of a luxury leather goods brand — from raw material procurement and artisan production tracking, through quality assurance and public store listing, to customer orders and inquiries. It implements the **Digital Twin** concept: every physical bag has a single corresponding software record that follows it from the cutting table to the customer's hands.
 
 ---
 
@@ -32,7 +32,7 @@ Kenia is a full-stack web application that digitises the entire lifecycle of a l
 Luxury leather goods ateliers manage complex, multi-stage production workflows across raw materials, skilled artisans, quality control, and customer-facing sales — all typically tracked on paper or in disconnected spreadsheets. This creates traceability gaps, stock miscounts, and no digital record of a bag's provenance.
 
 ### Solution
-Kenia provides a unified platform with two distinct surfaces:
+Zyra provides a unified platform with two distinct surfaces:
 
 | Surface | Audience | Purpose |
 |---|---|---|
@@ -183,7 +183,7 @@ Swagger UI: `http://localhost:8084/api/v1/swagger-ui.html`
 
 ## 6. Design Pattern — Layered Architecture
 
-Kenia's backend strictly follows the **Layered Architecture (n-tier)** pattern, which separates concerns into four distinct horizontal layers. This is the pattern recommended by Google's Java Style Guide and Spring's own best practices documentation.
+Zyra's backend strictly follows the **Layered Architecture (n-tier)** pattern, which separates concerns into four distinct horizontal layers. This is the pattern recommended by Google's Java Style Guide and Spring's own best practices documentation.
 
 ```
 ┌─────────────────────────────────────────┐
@@ -201,7 +201,7 @@ Kenia's backend strictly follows the **Layered Architecture (n-tier)** pattern, 
 └─────────────────────────────────────────┘
 ```
 
-**How it is applied in Kenia:**
+**How it is applied in Zyra:**
 
 - **Controller** (`/controller`) — receives HTTP requests, validates input via `@Valid`, maps to/from DTOs, delegates to service. Never contains business logic.
 - **Service** (`/service`) — owns all business rules (e.g. "a product must be activated before it can be listed", "OTP must match before activation"). Annotated with `@Transactional`.
@@ -326,8 +326,8 @@ The prototype covers the complete vertical slice of the most critical user journ
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/your-org/kenia.git
-cd kenia
+git clone https://github.com/your-org/Zyra.git
+cd Zyra
 ```
 
 ### 2. Configure environment
@@ -343,7 +343,7 @@ docker compose up db -d
 
 ### 4. Run the backend
 ```bash
-cd backend/kenia
+cd backend/Zyra
 ./mvnw spring-boot:run
 # API available at http://localhost:8084/api/v1
 # Swagger UI at http://localhost:8084/api/v1/swagger-ui.html
@@ -368,11 +368,11 @@ Docker is a containerisation platform that packages an application and all its d
 
 **Step 1 — Write a Dockerfile for each service**
 
-A `Dockerfile` is a text file with instructions for building a Docker image. Kenia uses **multi-stage builds** to keep production images small:
+A `Dockerfile` is a text file with instructions for building a Docker image. Zyra uses **multi-stage builds** to keep production images small:
 
-- **Backend Dockerfile** (`backend/kenia/Dockerfile`):
+- **Backend Dockerfile** (`backend/Zyra/Dockerfile`):
   - Stage 1 (`builder`): Uses `eclipse-temurin:21-jdk-alpine` to compile the Spring Boot app with Maven into a fat JAR.
-  - Stage 2 (`runtime`): Uses `eclipse-temurin:21-jre-alpine` (smaller, no compiler) and copies only the JAR. Runs as a non-root user `kenia` for security.
+  - Stage 2 (`runtime`): Uses `eclipse-temurin:21-jre-alpine` (smaller, no compiler) and copies only the JAR. Runs as a non-root user `Zyra` for security.
 
 - **Frontend Dockerfile** (`frontend/Dockerfile`):
   - Stage 1 (`builder`): Uses `node:20-alpine` to install dependencies and run `npm run build`, producing a static `dist/` folder.
@@ -385,10 +385,10 @@ A `Dockerfile` is a text file with instructions for building a Docker image. Ken
 | Service | Image | Port |
 |---|---|---|
 | `db` | `postgres:16-alpine` | 5432 (internal) |
-| `backend` | Built from `backend/kenia/Dockerfile` | 8084 |
+| `backend` | Built from `backend/Zyra/Dockerfile` | 8084 |
 | `frontend` | Built from `frontend/Dockerfile` | 80 |
 
-All three share a private Docker bridge network (`kenia_net`). The backend waits for the database to pass its health check before starting. Persistent data is stored in named Docker volumes (`postgres_data`, `uploads_data`).
+All three share a private Docker bridge network (`Zyra_net`). The backend waits for the database to pass its health check before starting. Persistent data is stored in named Docker volumes (`postgres_data`, `uploads_data`).
 
 **Step 3 — Build and run**
 
@@ -406,7 +406,7 @@ The `--build` flag forces Docker to rebuild all images. On subsequent runs, omit
 
 | URL | Expected |
 |---|---|
-| `http://localhost` | Kenia landing page |
+| `http://localhost` | Zyra landing page |
 | `http://localhost/api/v1/store` | JSON array of store listings |
 | `http://localhost:8084/api/v1/swagger-ui.html` | Swagger UI |
 
@@ -421,7 +421,7 @@ docker compose down -v       # stop containers AND delete volumes (resets DB)
 docker compose logs -f backend     # stream backend logs
 docker compose logs -f frontend    # stream frontend logs
 docker compose ps                  # list running containers
-docker exec -it kenia_db psql -U postgres -d kenia   # open DB shell
+docker exec -it Zyra_db psql -U postgres -d Zyra   # open DB shell
 docker compose restart backend     # restart one service
 ```
 
@@ -448,7 +448,7 @@ git config --global core.autocrlf input   # normalise line endings
 
 ### Initialising the Repository
 ```bash
-cd kenia
+cd Zyra
 git init
 git add .
 git commit -m "feat: initial project scaffold"
@@ -456,7 +456,7 @@ git commit -m "feat: initial project scaffold"
 
 ### Branching Strategy
 
-Kenia follows **GitHub Flow** — a lightweight branching model suitable for continuous delivery:
+Zyra follows **GitHub Flow** — a lightweight branching model suitable for continuous delivery:
 
 ```
 main ──────────────────────────────────────────────────► (production)
@@ -510,7 +510,7 @@ docs(readme): add API reference table
 
 ### Connecting to a Remote Repository
 ```bash
-git remote add origin https://github.com/your-org/kenia.git
+git remote add origin https://github.com/your-org/Zyra.git
 git branch -M main
 git push -u origin main
 ```
@@ -535,10 +535,10 @@ cp .env.example .env
 ## 13. Project Structure
 
 ```
-kenia/
+Zyra/
 ├── backend/
-│   └── kenia/
-│       ├── src/main/java/com/auca/kenia/
+│   └── Zyra/
+│       ├── src/main/java/com/auca/Zyra/
 │       │   ├── config/          # Security, OpenAPI, AppProperties
 │       │   ├── controller/      # REST controllers (HTTP layer)
 │       │   ├── domain/          # JPA entities + enums
@@ -610,9 +610,9 @@ kenia/
 | CORS | Configured in `SecurityConfig` — restrict `allowedOriginPatterns` in production |
 | SQL injection | Prevented by JPA/Hibernate parameterised queries |
 | Secrets | Never in source code — loaded from `.env` at runtime |
-| Container security | Backend runs as non-root user `kenia` inside container |
+| Container security | Backend runs as non-root user `Zyra` inside container |
 | Input validation | `@Valid` + Bean Validation annotations on all DTOs |
 
 ---
 
-*Kenia — Where every stitch tells a story.*
+*Zyra — Where every stitch tells a story.*

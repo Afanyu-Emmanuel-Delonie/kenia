@@ -41,13 +41,13 @@ function ReplyButtons({ inquiry }) {
   const openWhatsApp = () => {
     if (!inquiry.senderPhone) return alert('No phone number on this inquiry.');
     const phone = inquiry.senderPhone.replace(/\D/g, '');
-    const text = encodeURIComponent(`${greeting}Regarding your inquiry:\n"${inquiry.message}"\n\nKenia Atelier`);
+    const text = encodeURIComponent(`${greeting}Regarding your inquiry:\n"${inquiry.message}"\n\nZyra Atelier`);
     window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
   };
 
   const openEmail = () => {
     const subject = encodeURIComponent(`Re: Your inquiry about ${inquiry.productTitle}`);
-    const body = encodeURIComponent(`${greeting}Regarding your inquiry:\n"${inquiry.message}"\n\nKenia Atelier`);
+    const body = encodeURIComponent(`${greeting}Regarding your inquiry:\n"${inquiry.message}"\n\nZyra Atelier`);
     window.open(`mailto:${inquiry.senderEmail}?subject=${subject}&body=${body}`, '_blank');
   };
 

@@ -240,7 +240,7 @@ export default function SettingsPage() {
                 <input defaultValue={API_BASE} readOnly style={{ ...inputStyle, background: '#f9f9f7', color: '#888', cursor: 'default' }} />
               </Field>
               <Field label="Application Version">
-                <input defaultValue="Kenia Atelier v1.0.0" readOnly style={{ ...inputStyle, background: '#f9f9f7', color: '#888', cursor: 'default' }} />
+                <input defaultValue="Zyra Atelier v1.0.0" readOnly style={{ ...inputStyle, background: '#f9f9f7', color: '#888', cursor: 'default' }} />
               </Field>
               <div style={{ padding: '0.85rem 1rem', background: '#fffbeb', borderRadius: '8px', border: '1px solid #d9770633' }}>
                 <p style={{ fontFamily: F.data, fontSize: '0.44rem', color: '#d97706', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '0.35rem', fontWeight: 700 }}>Danger Zone</p>

@@ -54,15 +54,15 @@ function ActionButtons({ order, onUpdate }) {
   const openWhatsApp = () => {
     const phone = order.customerPhone.replace(/\D/g, '');
     const text = encodeURIComponent(
-      `Hi ${order.customerName},\n\nYour Kenia order *${order.reference}* has been ${next === 'CONFIRMED' ? 'confirmed' : next === 'SHIPPED' ? 'shipped' : 'updated'}.\n\nThank you for your order!\n\nKenia Atelier`
+      `Hi ${order.customerName},\n\nYour Zyra order *${order.reference}* has been ${next === 'CONFIRMED' ? 'confirmed' : next === 'SHIPPED' ? 'shipped' : 'updated'}.\n\nThank you for your order!\n\nZyra Atelier`
     );
     window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
   };
 
   const openEmail = () => {
-    const subject = encodeURIComponent(`Your Kenia Order ${order.reference} — Update`);
+    const subject = encodeURIComponent(`Your Zyra Order ${order.reference} — Update`);
     const body = encodeURIComponent(
-      `Hi ${order.customerName},\n\nYour order ${order.reference} status has been updated.\n\nThank you,\nKenia Atelier`
+      `Hi ${order.customerName},\n\nYour order ${order.reference} status has been updated.\n\nThank you,\nZyra Atelier`
     );
     window.open(`mailto:${order.customerEmail}?subject=${subject}&body=${body}`, '_blank');
   };
