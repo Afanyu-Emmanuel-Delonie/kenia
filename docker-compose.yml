@@ -3,34 +3,34 @@ services:
   # ── PostgreSQL ───────────────────────────────────────────────────────────────
   db:
     image: postgres:16-alpine
-    container_name: zyra_db
+    container_name: kenia_db
     restart: unless-stopped
     environment:
-      POSTGRES_DB: zyra
+      POSTGRES_DB: kenia
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d zyra"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d kenia"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
-      - zyra_net
+      - kenia_net
 
   # ── Spring Boot Backend ──────────────────────────────────────────────────────
   backend:
     build:
-      context: ./backend/zyra
+      context: ./backend/kenia
       dockerfile: Dockerfile
-    container_name: zyra_backend
+    container_name: kenia_backend
     restart: unless-stopped
     depends_on:
       db:
         condition: service_healthy
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/zyra
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/kenia
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
@@ -41,26 +41,26 @@ services:
     ports:
       - "8084:8084"
     networks:
-      - zyra_net
+      - kenia_net
 
   # ── React / Vite Frontend ────────────────────────────────────────────────────
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: zyra_frontend
+    container_name: kenia_frontend
     restart: unless-stopped
     depends_on:
       - backend
     ports:
       - "80:80"
     networks:
-      - zyra_net
+      - kenia_net
 
 volumes:
   postgres_data:
   uploads_data:
 
 networks:
-  zyra_net:
+  kenia_net:
     driver: bridge
