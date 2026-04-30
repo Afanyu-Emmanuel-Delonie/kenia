@@ -31,6 +31,7 @@ public class SecurityConfig {
 
   private final JwtAuthFilter jwtAuthFilter;
   private final UserDetailsService userDetailsService;
+  private final AppProperties appProperties;
 
   private static final String[] PUBLIC_PATHS = {
       "/auth/**",
@@ -111,7 +112,14 @@ public class SecurityConfig {
   @Bean
   public CorsConfigurationSource corsSource() {
     CorsConfiguration config = new CorsConfiguration();
-    config.setAllowedOriginPatterns(List.of("*"));
+    List<String> allowedOrigins = appProperties.getCors().getAllowedOrigins();
+    if (allowedOrigins == null || allowedOrigins.isEmpty()) {
+      allowedOrigins = List.of(
+          "http://localhost:5173",
+          "http://localhost:4173",
+          "https://zyra-atlier.netlify.app");
+    }
+    config.setAllowedOrigins(allowedOrigins);
     config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
     config.setAllowedHeaders(List.of("*"));
     config.setAllowCredentials(true);

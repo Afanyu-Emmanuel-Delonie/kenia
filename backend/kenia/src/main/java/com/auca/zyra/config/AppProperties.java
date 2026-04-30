@@ -5,13 +5,22 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
-/** Binds app.jwt.* properties for type-safe injection. */
+import java.util.List;
+
+/** Binds app.jwt.* and app.cors.* properties for type-safe injection. */
 @Component
-@ConfigurationProperties(prefix = "app.jwt")
+@ConfigurationProperties(prefix = "app")
 @Getter
 @Setter
 public class AppProperties {
 
+  private Cors cors = new Cors();
   private String secret;
   private long expirationMs;
+
+  @Getter
+  @Setter
+  public static class Cors {
+    private List<String> allowedOrigins;
+  }
 }

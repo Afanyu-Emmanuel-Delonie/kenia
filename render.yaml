@@ -6,3 +6,6 @@ services:
     dockerContext: backend/kenia
     healthCheckPath: /api/v1/health
     autoDeployTrigger: commit
+    envVars:
+      - key: APP_CORS_ALLOWED_ORIGINS
+        value: https://zyra-atlier.netlify.app
