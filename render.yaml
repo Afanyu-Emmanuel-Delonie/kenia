@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: zyra-backend
+    runtime: docker
+    rootDir: backend/zyra
+    dockerfilePath: Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/v1/health
+    autoDeployTrigger: commit
