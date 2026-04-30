@@ -18,8 +18,8 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (res) => res,
   (err) => {
-    if (err.response?.status === 401 || err.response?.status === 403) {
-      // Only redirect if we're not already on login/register pages
+    if (err.response?.status === 401) {
+      // Only treat a true auth failure as a session reset.
       if (!window.location.pathname.includes('/login') && !window.location.pathname.includes('/register')) {
         localStorage.removeItem('kernia_token');
         localStorage.removeItem('kernia_user');

@@ -57,6 +57,7 @@ function ListingModal({ listing, products, onClose, onDone }) {
   const [loading, setLoading]     = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError]         = useState('');
+  const [selectedImage, setSelectedImage] = useState(null);
   const [imgPreview, setImgPreview] = useState(
     listing?.imagePaths ? `${API_ORIGIN}/uploads/${listing.imagePaths.split(',')[0]}` : null
   );
@@ -69,13 +70,21 @@ function ListingModal({ listing, products, onClose, onDone }) {
 
   const handleImagePick = async (e) => {
     const file = e.target.files?.[0];
-    if (!file || !isEdit) return;
-    setImgPreview(URL.createObjectURL(file));
-    setUploading(true);
-    try {
-      await uploadListingImage(listing.id, file);
-    } catch { setError('Image upload failed.'); }
-    finally { setUploading(false); }
+    if (!file) return;
+    const previewUrl = URL.createObjectURL(file);
+    setImgPreview(previewUrl);
+    if (isEdit) {
+      setUploading(true);
+      try {
+        await uploadListingImage(listing.id, file);
+      } catch {
+        setError('Image upload failed.');
+      } finally {
+        setUploading(false);
+      }
+    } else {
+      setSelectedImage(file);
+    }
   };
 
   const submit = async (e) => {
@@ -91,15 +100,29 @@ function ListingModal({ listing, products, onClose, onDone }) {
           available: form.available,
         });
       } else {
-        await createListing({
+        const created = await createListing({
           productId: parseInt(form.productId), title: form.title,
           description: form.description, price: parseFloat(form.price),
           currency: form.currency,
         });
+        if (selectedImage && created?.data?.id) {
+          setUploading(true);
+          try {
+            await uploadListingImage(created.data.id, selectedImage);
+          } catch {
+            setError('Listing created, but image upload failed.');
+          } finally {
+            setUploading(false);
+          }
+        }
       }
       onDone();
     } catch (err) {
-      setError(err?.response?.data?.message ?? 'Failed. Try again.');
+      if (err?.response?.status === 409) {
+        setError('This product already has a listing.');
+      } else {
+        setError(err?.response?.data?.message ?? 'Failed. Try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -180,39 +203,37 @@ function ListingModal({ listing, products, onClose, onDone }) {
           </div>
 
           {/* Image upload — edit only */}
-          {isEdit && (
-            <div>
-              <label style={labelStyle}>Product Image</label>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <div style={{
-                  width: '80px', height: '80px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0,
-                  background: '#f4f4f4', border: '1px solid rgba(5,5,5,0.09)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
-                  {imgPreview
-                    ? <img src={imgPreview} alt="preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    : <Package size={22} style={{ color: '#ccc' }} />
-                  }
-                </div>
-                <div style={{ flex: 1 }}>
-                  <button type="button" onClick={() => imgRef.current?.click()} style={{
-                    display: 'flex', alignItems: 'center', gap: '0.4rem',
-                    padding: '0.5rem 0.9rem', borderRadius: '6px', cursor: 'pointer',
-                    fontFamily: F.ui, fontSize: '0.72rem', fontWeight: 600,
-                    background: '#f4f4f4', color: '#050505', border: '1px solid rgba(5,5,5,0.09)',
-                    transition: 'all 0.15s',
-                  }}
-                    onMouseEnter={(e) => { e.currentTarget.style.background = '#050505'; e.currentTarget.style.color = '#fff'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.background = '#f4f4f4'; e.currentTarget.style.color = '#050505'; }}
-                  >
-                    <ImagePlus size={12} /> {uploading ? 'Uploading…' : 'Upload Image'}
-                  </button>
-                  <p style={{ fontFamily: F.data, fontSize: '0.6875rem', color: '#bbb', letterSpacing: '0.08em', marginTop: '0.4rem' }}>JPG, PNG — max 10MB</p>
-                  <input ref={imgRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImagePick} />
-                </div>
+          <div>
+            <label style={labelStyle}>Product Image</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <div style={{
+                width: '80px', height: '80px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0,
+                background: '#f4f4f4', border: '1px solid rgba(5,5,5,0.09)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                {imgPreview
+                  ? <img src={imgPreview} alt="preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  : <Package size={22} style={{ color: '#ccc' }} />
+                }
+              </div>
+              <div style={{ flex: 1 }}>
+                <button type="button" onClick={() => imgRef.current?.click()} style={{
+                  display: 'flex', alignItems: 'center', gap: '0.4rem',
+                  padding: '0.5rem 0.9rem', borderRadius: '6px', cursor: 'pointer',
+                  fontFamily: F.ui, fontSize: '0.72rem', fontWeight: 600,
+                  background: '#f4f4f4', color: '#050505', border: '1px solid rgba(5,5,5,0.09)',
+                  transition: 'all 0.15s',
+                }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = '#050505'; e.currentTarget.style.color = '#fff'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = '#f4f4f4'; e.currentTarget.style.color = '#050505'; }}
+                >
+                  <ImagePlus size={12} /> {uploading ? 'Uploading…' : isEdit ? 'Upload Image' : 'Choose Image'}
+                </button>
+                <p style={{ fontFamily: F.data, fontSize: '0.6875rem', color: '#bbb', letterSpacing: '0.08em', marginTop: '0.4rem' }}>JPG, PNG — max 10MB</p>
+                <input ref={imgRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImagePick} />
               </div>
             </div>
-          )}
+          </div>
 
           {isEdit && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 1rem', background: '#f9f9f7', borderRadius: '8px', border: '1px solid rgba(5,5,5,0.07)' }}>

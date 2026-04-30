@@ -15,6 +15,7 @@ export const getDashboard = () => api.get('/dashboard');
 export const getProducts = () => api.get('/products');
 export const getProduct = (id) => api.get(`/products/${id}`);
 export const createProduct = (data) => api.post('/products', data);
+export const deleteProduct = (id) => api.delete(`/products/${id}`);
 export const signStage = (id, data) => api.post(`/products/${id}/sign`, data);
 export const uploadQaPhoto = (id, file) => {
   const form = new FormData();

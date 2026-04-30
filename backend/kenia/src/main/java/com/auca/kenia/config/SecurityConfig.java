@@ -33,24 +33,25 @@ public class SecurityConfig {
   private final UserDetailsService userDetailsService;
 
   private static final String[] PUBLIC_PATHS = {
-    "/auth/**",
-    "/health",
-    "/uploads/**",
-    "/v3/api-docs/**",
-    "/swagger-ui/**",
-    "/swagger-ui.html"
+      "/auth/**",
+      "/health",
+      "/uploads/**",
+      "/v3/api-docs/**",
+      "/swagger-ui/**",
+      "/swagger-ui.html"
   };
 
   /** Public read-only store catalog. */
   private static final String[] PUBLIC_GET_PATHS = {
-    "/store",
-    "/store/*"
+      "/store",
+      "/store/*",
+      "/store/all"
   };
 
   /** Public customer-action endpoints (place order, track, inquire). */
   private static final String[] PUBLIC_POST_PATHS = {
-    "/orders",
-    "/inquiries"
+      "/orders",
+      "/inquiries"
   };
 
   @Bean
@@ -65,9 +66,10 @@ public class SecurityConfig {
             .requestMatchers(HttpMethod.POST, PUBLIC_POST_PATHS).permitAll()
             .requestMatchers(HttpMethod.GET, "/orders/track/**").permitAll()
             .requestMatchers(HttpMethod.GET, "/orders/my").permitAll()
-            // Store mutations — admin/manager only
-            .requestMatchers(HttpMethod.POST, "/store/**").hasAnyRole("ADMIN", "MANAGER")
-            .requestMatchers(HttpMethod.PUT, "/store/**").hasAnyRole("ADMIN", "MANAGER")
+            // Store mutations — allow any authenticated user for this class project
+            .requestMatchers(HttpMethod.POST, "/store/**", "/api/v1/store/**").authenticated()
+            .requestMatchers(HttpMethod.PUT, "/store/**", "/api/v1/store/**").authenticated()
+            .requestMatchers(HttpMethod.DELETE, "/store/**", "/api/v1/store/**").authenticated()
             // Dashboard — managers and admins only
             .requestMatchers("/dashboard/**").hasAnyRole("ADMIN", "MANAGER")
             // Material management — admin only for mutations
@@ -75,8 +77,7 @@ public class SecurityConfig {
             .requestMatchers(HttpMethod.PUT, "/materials/**").hasRole("ADMIN")
             .requestMatchers(HttpMethod.DELETE, "/materials/**").hasRole("ADMIN")
             // Everything else requires authentication
-            .anyRequest().authenticated()
-        )
+            .anyRequest().authenticated())
         .authenticationProvider(authProvider())
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 

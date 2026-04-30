@@ -27,6 +27,8 @@ public class DataSeeder implements ApplicationRunner {
   private final ProductRepository productRepository;
   private final StageLogRepository stageLogRepository;
   private final StoreListingRepository storeListingRepository;
+  private final OrderRepository orderRepository;
+  private final InquiryRepository inquiryRepository;
   private final PasswordEncoder passwordEncoder;
 
   @Override
@@ -40,6 +42,7 @@ public class DataSeeder implements ApplicationRunner {
     seedUsers();
     seedMaterials();
     seedProducts();
+    seedOrdersAndInquiries();
     log.info("Database seeding complete.");
   }
 
@@ -109,22 +112,25 @@ public class DataSeeder implements ApplicationRunner {
     createProduct("KRN-2026-008", "Obsidian Wristlet",     "Lagos Workshop",  ProductStage.STITCHING,     false, null, admin);
 
     // Store listings for the 3 activated bags
-    createListing(obsidian,
+    StoreListing obsidianListing = createListing(obsidian,
         "Obsidian Tote — Kigali Edition",
         "Hand-stitched from full-grain Tuscan leather. Each stitch placed by a single artisan over 14 hours. The obsidian finish deepens with age.",
         new BigDecimal("1250.00"), "USD");
 
     Product ivory = productRepository.findBySku("KRN-2026-002").orElseThrow();
-    createListing(ivory,
+    StoreListing ivoryListing = createListing(ivory,
         "Ivory Clutch — Evening Collection",
         "Saffiano leather evening clutch with brushed gold clasp. Limited to 12 pieces per season.",
         new BigDecimal("890.00"), "USD");
 
     Product cognac = productRepository.findBySku("KRN-2026-003").orElseThrow();
-    createListing(cognac,
+    StoreListing cognacListing = createListing(cognac,
         "Cognac Crossbody — Heritage Line",
         "Vegetable-tanned leather that tells the story of its journey. Adjustable strap, two interior compartments.",
         new BigDecimal("975.00"), "USD");
+
+    // Keep references for subsequent demo seeds.
+    seededListings = new SeededListings(obsidianListing, ivoryListing, cognacListing);
 
     log.info("  ✓ 8 products + 3 store listings seeded");
   }
@@ -154,7 +160,7 @@ public class DataSeeder implements ApplicationRunner {
     return p;
   }
 
-  private void createListing(Product product, String title, String description,
+  private StoreListing createListing(Product product, String title, String description,
       BigDecimal price, String currency) {
     StoreListing l = new StoreListing();
     l.setProduct(product);
@@ -163,6 +169,78 @@ public class DataSeeder implements ApplicationRunner {
     l.setPrice(price);
     l.setCurrency(currency);
     l.setAvailable(true);
-    storeListingRepository.save(l);
+    return storeListingRepository.save(l);
   }
+
+  private void seedOrdersAndInquiries() {
+    if (seededListings == null) {
+      seededListings = new SeededListings(
+          storeListingRepository.findByProductId(productRepository.findBySku("KRN-2026-001").orElseThrow().getId()).orElseThrow(),
+          storeListingRepository.findByProductId(productRepository.findBySku("KRN-2026-002").orElseThrow().getId()).orElseThrow(),
+          storeListingRepository.findByProductId(productRepository.findBySku("KRN-2026-003").orElseThrow().getId()).orElseThrow());
+    }
+
+    createOrder("ORD-2026-0001", seededListings.obsidianListing, "Amina N'Goma", "amina.ngoma@example.com", "+250788111222",
+        "DELIVERY", "Kigali Heights", "Kigali", "Rwanda", "00000",
+        "Please gift-wrap the tote and include a handwritten card.", new BigDecimal("1250.00"), "USD", OrderStatus.CONFIRMED);
+    createOrder("ORD-2026-0002", seededListings.ivoryListing, "Lillian Mbeki", "lillian.mbeki@example.com", "+260977222333",
+        "PICKUP", null, null, null, null,
+        "Pickup during business hours if possible.", new BigDecimal("890.00"), "USD", OrderStatus.PENDING);
+    createOrder("ORD-2026-0003", seededListings.cognacListing, "Daniel Otieno", "daniel.otieno@example.com", "+254712333444",
+        "DELIVERY", "Westlands", "Nairobi", "Kenya", "00600",
+        "Handle with care, this is for an anniversary gift.", new BigDecimal("975.00"), "USD", OrderStatus.SHIPPED);
+
+    createInquiry(seededListings.obsidianListing, "Mia Uwase", "mia.uwase@example.com", "+250788444555",
+        "Is the Obsidian Tote available in a slightly larger size? I love the finish and want to know if custom sizing is possible.",
+        null, null, "OPEN");
+    createInquiry(seededListings.ivoryListing, "Nadia Hassan", "nadia.hassan@example.com", "+255746555666",
+        "What is the expected lead time for the Ivory Clutch if I place an order this week?",
+        "Yes, the current lead time is 10 to 14 business days. We can also prioritize it for special events.",
+        Instant.now(), "CLOSED");
+    createInquiry(seededListings.cognacListing, "Ethan Moyo", "ethan.moyo@example.com", null,
+        "Do you offer a matching travel pouch with the Cognac Crossbody?",
+        null, null, "OPEN");
+
+    log.info("  ✓ 3 orders + 3 inquiries seeded");
+  }
+
+  private Order createOrder(String reference, StoreListing listing, String customerName, String customerEmail,
+      String customerPhone, String deliveryMethod, String deliveryAddress, String deliveryCity,
+      String deliveryCountry, String postalCode, String notes, BigDecimal totalAmount, String currency,
+      OrderStatus status) {
+    Order order = new Order();
+    order.setReference(reference);
+    order.setListing(listing);
+    order.setCustomerName(customerName);
+    order.setCustomerEmail(customerEmail);
+    order.setCustomerPhone(customerPhone);
+    order.setDeliveryMethod(deliveryMethod);
+    order.setDeliveryAddress(deliveryAddress);
+    order.setDeliveryCity(deliveryCity);
+    order.setDeliveryCountry(deliveryCountry);
+    order.setPostalCode(postalCode);
+    order.setNotes(notes);
+    order.setTotalAmount(totalAmount);
+    order.setCurrency(currency);
+    order.setStatus(status);
+    return orderRepository.save(order);
+  }
+
+  private Inquiry createInquiry(StoreListing listing, String senderName, String senderEmail, String senderPhone,
+      String message, String reply, Instant repliedAt, String status) {
+    Inquiry inquiry = new Inquiry();
+    inquiry.setListing(listing);
+    inquiry.setSenderName(senderName);
+    inquiry.setSenderEmail(senderEmail);
+    inquiry.setSenderPhone(senderPhone);
+    inquiry.setMessage(message);
+    inquiry.setReply(reply);
+    inquiry.setRepliedAt(repliedAt);
+    inquiry.setStatus(status);
+    return inquiryRepository.save(inquiry);
+  }
+
+  private SeededListings seededListings;
+
+  private record SeededListings(StoreListing obsidianListing, StoreListing ivoryListing, StoreListing cognacListing) {}
 }

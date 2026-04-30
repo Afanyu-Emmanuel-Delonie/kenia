@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getInquiries, getOpenInquiries, deleteInquiry } from '../../api/services';
+import ConfirmDeleteModal from '../../components/ConfirmDeleteModal';
 import {
   MessageSquare, Mail, Phone, Clock, CheckCircle,
   ChevronDown, ChevronUp, Search, Trash2,
@@ -185,6 +186,8 @@ export default function InquiriesPage() {
   const [filter, setFilter]       = useState('ALL');
   const [search, setSearch]       = useState('');
   const [expanded, setExpanded]   = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting]   = useState(false);
 
   useEffect(() => {
     const fn = filter === 'OPEN' ? getOpenInquiries : getInquiries;
@@ -193,12 +196,19 @@ export default function InquiriesPage() {
   }, [filter]);
 
   const handleDelete = async (inq) => {
-    if (!window.confirm(`Delete inquiry from "${inq.senderName}"? This cannot be undone.`)) return;
+    const target = inq ?? deleteTarget;
+    if (!target) return;
+    if (!inq && !window.confirm(`Delete inquiry from "${target.senderName}"? This cannot be undone.`)) return;
+    setDeleting(true);
     try {
-      await deleteInquiry(inq.id);
-      setInquiries((prev) => prev.filter((i) => i.id !== inq.id));
+      await deleteInquiry(target.id);
+      setInquiries((prev) => prev.filter((i) => i.id !== target.id));
       setExpanded(null);
+      setDeleteTarget(null);
     } catch {}
+    finally {
+      setDeleting(false);
+    }
   };
 
   const openCount   = inquiries.filter((i) => i.status === 'OPEN').length;
@@ -282,7 +292,7 @@ export default function InquiriesPage() {
                 inquiry={inq}
                 expanded={expanded === inq.id}
                 onToggle={() => setExpanded(expanded === inq.id ? null : inq.id)}
-                onDelete={handleDelete}
+                onDelete={setDeleteTarget}
               />
             ))}
           </div>

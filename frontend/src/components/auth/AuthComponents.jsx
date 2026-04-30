@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 
 // ── Shared base styles ────────────────────────────────────────────────────
 export const inputStyle = {
@@ -28,7 +28,23 @@ export function AuthLayout({ children, locked = false }) {
       overflowX: 'hidden',
       scrollbarGutter: 'stable',
       padding: locked ? '1.5rem' : '2.5rem 1.5rem',
+      position: 'relative',
     }}>
+
+      {/* Back to home */}
+      <Link to="/" style={{
+        position: 'absolute', top: '1.5rem', left: '1.75rem',
+        display: 'flex', alignItems: 'center', gap: '0.4rem',
+        fontFamily: 'IBM Plex Mono, monospace', fontSize: '0.6rem',
+        color: '#aaa', textDecoration: 'none', letterSpacing: '0.12em',
+        textTransform: 'uppercase', transition: 'color 0.2s',
+      }}
+        onMouseEnter={(e) => (e.currentTarget.style.color = '#B68D40')}
+        onMouseLeave={(e) => (e.currentTarget.style.color = '#aaa')}
+      >
+        <ArrowLeft size={11} />
+        Home
+      </Link>
       <h1 style={{
         fontFamily: 'Cormorant Garamond, serif', fontSize: '3rem', fontWeight: 600,
         color: '#050505', letterSpacing: '-0.02em', lineHeight: 1, marginBottom: '0.3rem',

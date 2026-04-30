@@ -81,27 +81,54 @@ function SidebarInner({ collapsed, onClose }) {
 
       {/* ── Brand ── */}
       <div style={{
-        padding: collapsed ? '1.75rem 0' : '1.75rem 1.75rem 1.5rem',
+        padding: collapsed ? '1.5rem 0' : '1.5rem 1.5rem',
         borderBottom: '1px solid rgba(255,255,255,0.04)',
         display: 'flex', alignItems: 'center',
         justifyContent: collapsed ? 'center' : 'space-between',
-        gap: '0.5rem',
+        minHeight: '72px',
       }}>
-        {!collapsed && (
-          <div>
-            <p style={{
-              fontFamily: 'Cormorant Garamond, serif', fontSize: '1.6rem',
-              fontWeight: 600, color: '#FCFCFA', letterSpacing: '-0.02em', lineHeight: 1,
-              marginBottom: '0.25rem',
+        {collapsed ? (
+          /* Collapsed: gold K monogram */
+          <div style={{
+            width: '36px', height: '36px', borderRadius: '8px',
+            background: 'rgba(182,141,64,0.1)',
+            border: '1px solid rgba(182,141,64,0.25)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0,
+          }}>
+            <span style={{
+              fontFamily: 'Cormorant Garamond, serif',
+              fontSize: '1.25rem', fontWeight: 600,
+              color: '#B68D40', lineHeight: 1, userSelect: 'none',
+            }}>K</span>
+          </div>
+        ) : (
+          /* Expanded: full brand block */
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0 }}>
+            <div style={{
+              width: '32px', height: '32px', borderRadius: '7px',
+              background: 'rgba(182,141,64,0.1)',
+              border: '1px solid rgba(182,141,64,0.25)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0,
             }}>
-              Kenia
-            </p>
-            <p style={{
-              fontFamily: 'IBM Plex Mono, monospace', fontSize: '0.45rem',
-              color: '#B68D40', letterSpacing: '0.3em', textTransform: 'uppercase',
-            }}>
-              Atelier · Mgmt
-            </p>
+              <span style={{
+                fontFamily: 'Cormorant Garamond, serif',
+                fontSize: '1.1rem', fontWeight: 600,
+                color: '#B68D40', lineHeight: 1, userSelect: 'none',
+              }}>K</span>
+            </div>
+            <div>
+              <p style={{
+                fontFamily: 'Cormorant Garamond, serif', fontSize: '1.35rem',
+                fontWeight: 600, color: '#FCFCFA', letterSpacing: '-0.01em', lineHeight: 1,
+                marginBottom: '0.2rem',
+              }}>Kenia</p>
+              <p style={{
+                fontFamily: 'IBM Plex Mono, monospace', fontSize: '0.5rem',
+                color: 'rgba(182,141,64,0.7)', letterSpacing: '0.25em', textTransform: 'uppercase',
+              }}>Atelier</p>
+            </div>
           </div>
         )}
 
@@ -110,22 +137,19 @@ function SidebarInner({ collapsed, onClose }) {
           <button onClick={onClose} style={btnReset}>
             <X size={16} style={{ color: 'rgba(255,255,255,0.3)' }} />
           </button>
-        ) : (
-          <button onClick={toggle} title={collapsed ? 'Expand' : 'Collapse'} style={{
+        ) : !collapsed && (
+          <button onClick={toggle} title="Collapse" style={{
             ...btnReset,
-            width: '28px', height: '28px', borderRadius: '4px',
+            width: '26px', height: '26px', borderRadius: '4px',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             background: 'rgba(255,255,255,0.04)',
             border: '1px solid rgba(255,255,255,0.06)',
-            transition: 'background 0.15s',
+            transition: 'background 0.15s', flexShrink: 0,
           }}
             onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(182,141,64,0.1)')}
             onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.04)')}
           >
-            {collapsed
-              ? <ChevronRight size={13} style={{ color: 'rgba(255,255,255,0.4)' }} />
-              : <ChevronLeft size={13} style={{ color: 'rgba(255,255,255,0.4)' }} />
-            }
+            <ChevronLeft size={12} style={{ color: 'rgba(255,255,255,0.4)' }} />
           </button>
         )}
       </div>
@@ -139,10 +163,26 @@ function SidebarInner({ collapsed, onClose }) {
 
       {/* ── Sign out ── */}
       <div style={{
-        padding: collapsed ? '1.25rem 0' : '1.25rem 1.75rem',
+        padding: collapsed ? '1.25rem 0' : '1.25rem 1.5rem',
         borderTop: '1px solid rgba(255,255,255,0.04)',
-        display: 'flex', justifyContent: collapsed ? 'center' : 'flex-start',
+        display: 'flex', flexDirection: 'column',
+        alignItems: collapsed ? 'center' : 'flex-start', gap: '0.5rem',
       }}>
+        {collapsed && (
+          <button onClick={toggle} title="Expand sidebar" style={{
+            ...btnReset,
+            width: '32px', height: '32px', borderRadius: '6px',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: 'rgba(255,255,255,0.04)',
+            border: '1px solid rgba(255,255,255,0.06)',
+            marginBottom: '0.5rem', transition: 'background 0.15s',
+          }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(182,141,64,0.1)')}
+            onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.04)')}
+          >
+            <ChevronRight size={13} style={{ color: 'rgba(255,255,255,0.4)' }} />
+          </button>
+        )}
         <button onClick={handleSignOut} title={collapsed ? 'Sign out' : undefined} style={{
           ...btnReset, display: 'flex', alignItems: 'center',
           gap: collapsed ? 0 : '0.6rem',

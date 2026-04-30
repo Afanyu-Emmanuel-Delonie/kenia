@@ -4,17 +4,17 @@ import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
 import { register } from '../../api/services';
 import {
-  AuthLayout, AuthCard, AuthInput, AuthSelect, AuthPasswordInput,
+  AuthLayout, AuthCard, AuthInput, AuthPasswordInput,
   AuthSubmitButton, SocialAuth, AuthDivider, AuthFieldError, AuthFooterLink,
 } from '../../components/auth/AuthComponents';
 
-const ROLES = ['ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_ARTISAN', 'ROLE_QA'];
+const ROLES = ['ROLE_ADMIN'];
 
 export default function RegisterPage() {
   const { signIn } = useAuth();
   const { success, error: showError } = useNotification();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ fullName: '', email: '', password: '', role: 'ROLE_ARTISAN' });
+  const [form, setForm] = useState({ fullName: '', email: '', password: '', role: 'ROLE_ADMIN' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -50,9 +50,6 @@ export default function RegisterPage() {
             value={form.email} onChange={set('email')} required />
           <AuthPasswordInput label="Password" placeholder="Min. 8 characters"
             value={form.password} onChange={set('password')} required minLength={8} />
-          <AuthSelect label="Role" value={form.role} onChange={set('role')}>
-            {ROLES.map((r) => <option key={r} value={r}>{r.replace('ROLE_', '')}</option>)}
-          </AuthSelect>
           <AuthFieldError message={error} />
           <AuthSubmitButton loading={loading} label="Create Account" />
         </form>

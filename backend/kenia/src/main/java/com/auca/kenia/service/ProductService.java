@@ -145,6 +145,14 @@ public class ProductService {
     return productRepository.findAll().stream().map(this::toResponse).toList();
   }
 
+  @Transactional
+  public void deleteProduct(Long id) {
+    if (!productRepository.existsById(id)) {
+      throw new ResourceNotFoundException("Product not found: " + id);
+    }
+    productRepository.deleteById(id);
+  }
+
   // ── Private helpers ───────────────────────────────────────────────────────
 
   private Product findProduct(Long id) {

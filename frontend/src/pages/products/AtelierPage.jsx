@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { getProducts, createProduct } from '../../api/services';
-import { Layers, Scissors, Gem, CheckCircle, Package, Clock, Search, Filter, Plus, X, ImagePlus } from 'lucide-react';
+import { getProducts, createProduct, deleteProduct } from '../../api/services';
+import { Layers, Scissors, Gem, CheckCircle, Package, Clock, Search, Filter, Plus, X, ImagePlus, Trash2 } from 'lucide-react';
+import ConfirmDeleteModal from '../../components/ConfirmDeleteModal';
 
 const F = { display: 'Cormorant Garamond, serif', ui: 'Inter, sans-serif', data: 'IBM Plex Mono, monospace' };
 
@@ -165,7 +166,7 @@ const btnPrimary   = { flex: 1, padding: '0.75rem', borderRadius: '8px', border:
 const btnSecondary = { flex: 1, padding: '0.75rem', borderRadius: '8px', border: '1px solid rgba(5,5,5,0.12)', background: '#fff', color: '#050505', fontFamily: F.ui, fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer' };
 
 // ── Desktop table row ──────────────────────────────────────────────────────
-function TableRow({ p, i }) {
+function TableRow({ p, i, onDelete }) {
   const [hov, setHov] = useState(false);
   return (
     <tr onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
@@ -195,6 +196,20 @@ function TableRow({ p, i }) {
       <td style={{ ...td, fontFamily: F.data, fontSize: '0.6875rem', color: '#888', letterSpacing: '0.05em', fontWeight: 500, whiteSpace: 'nowrap' }} className="col-date">
         {p.createdAt ? new Date(p.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
       </td>
+      <td style={{ ...td, textAlign: 'right' }}>
+        <button onClick={(e) => { e.stopPropagation(); onDelete(p); }} style={{
+          display: 'flex', alignItems: 'center', gap: '0.35rem',
+          padding: '0.3rem 0.7rem', borderRadius: '6px', cursor: 'pointer',
+          fontFamily: F.ui, fontSize: '0.75rem', fontWeight: 600,
+          background: '#fef2f2', color: '#dc2626', border: '1px solid #dc262633',
+          transition: 'background 0.15s',
+        }}
+          onMouseEnter={(e) => (e.currentTarget.style.background = '#fee2e2')}
+          onMouseLeave={(e) => (e.currentTarget.style.background = '#fef2f2')}
+        >
+          <Trash2 size={11} /> Delete
+        </button>
+      </td>
     </tr>
   );
 }
@@ -203,7 +218,7 @@ const td = { padding: '0.85rem 1rem', verticalAlign: 'middle', borderBottom: '1p
 const th = { padding: '0.65rem 1rem', fontFamily: F.data, fontSize: '0.6875rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#050505', fontWeight: 500, textAlign: 'left', borderBottom: '1px solid rgba(5,5,5,0.08)', background: '#fafafa', whiteSpace: 'nowrap' };
 
 // ── Mobile card ────────────────────────────────────────────────────────────
-function MobileCard({ p }) {
+function MobileCard({ p, onDelete }) {
   return (
     <div style={{ background: '#fff', border: '1px solid rgba(5,5,5,0.08)', borderRadius: '12px', padding: '1rem 1.1rem', boxShadow: '0 1px 4px rgba(5,5,5,0.04)' }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '0.65rem', gap: '0.5rem' }}>
@@ -233,6 +248,18 @@ function MobileCard({ p }) {
           <span style={{ fontFamily: F.data, fontSize: '0.6875rem', color: '#aaa', letterSpacing: '0.05em', fontWeight: 500 }}>
             {p.createdAt ? new Date(p.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
           </span>
+          <button onClick={() => onDelete(p)} style={{
+            display: 'flex', alignItems: 'center', gap: '0.3rem',
+            padding: '0.3rem 0.65rem', borderRadius: '6px', cursor: 'pointer',
+            fontFamily: F.ui, fontSize: '0.72rem', fontWeight: 600,
+            background: '#fef2f2', color: '#dc2626', border: '1px solid #dc262633',
+            transition: 'background 0.15s',
+          }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = '#fee2e2')}
+            onMouseLeave={(e) => (e.currentTarget.style.background = '#fef2f2')}
+          >
+            <Trash2 size={11} /> Delete
+          </button>
         </div>
       </div>
     </div>
@@ -257,12 +284,25 @@ export default function AtelierPage() {
   const [atelier, setAtelier]   = useState('All');
   const [stage, setStage]       = useState('All');
   const [showNew, setShowNew]   = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting]         = useState(false);
 
   const load = () => {
     setLoading(true);
     getProducts().then((r) => setProducts(Array.isArray(r.data) ? r.data : [])).finally(() => setLoading(false));
   };
   useEffect(() => { load(); }, []);
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await deleteProduct(deleteTarget.id);
+      setProducts((prev) => prev.filter((p) => p.id !== deleteTarget.id));
+      setDeleteTarget(null);
+    } catch {}
+    finally { setDeleting(false); }
+  };
 
   // ── KPI counts ────────────────────────────────────────────────────────────
   const totalBags    = products.length;
@@ -380,7 +420,7 @@ export default function AtelierPage() {
         <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '560px' }}>
           <thead>
             <tr>
-              {['', 'SKU', 'Name', 'Atelier', 'Stage', 'Status', 'Created'].map((h, i) => (
+              {['', 'SKU', 'Name', 'Atelier', 'Stage', 'Status', 'Created', ''].map((h, i) => (
                 <th key={h} style={{ ...th }} className={i === 3 ? 'col-atelier' : i === 5 ? 'col-status' : i === 6 ? 'col-date' : undefined}>{h}</th>
               ))}
             </tr>
@@ -388,7 +428,7 @@ export default function AtelierPage() {
           <tbody>
             {filtered.length === 0
               ? <tr><td colSpan={7} style={{ padding: '3rem', textAlign: 'center', fontFamily: F.ui, fontSize: '0.82rem', color: '#bbb', fontWeight: 500 }}>No bags found</td></tr>
-              : filtered.map((p, i) => <TableRow key={p.id} p={p} i={i} />)
+              : filtered.map((p, i) => <TableRow key={p.id} p={p} i={i} onDelete={setDeleteTarget} />)
             }
           </tbody>
         </table>
@@ -402,7 +442,7 @@ export default function AtelierPage() {
             <div key={site}>
               <AtelierHeader name={site} count={bags.length} />
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                {bags.map((p) => <MobileCard key={p.id} p={p} />)}
+                {bags.map((p) => <MobileCard key={p.id} p={p} onDelete={setDeleteTarget} />)}
               </div>
             </div>
           ))
@@ -410,6 +450,16 @@ export default function AtelierPage() {
       </div>
 
       {showNew && <NewBagModal onClose={() => setShowNew(false)} onDone={() => { setShowNew(false); load(); }} />}
+
+      {deleteTarget && (
+        <ConfirmDeleteModal
+          title={`Delete "${deleteTarget.name}"`}
+          description={`This will permanently remove ${deleteTarget.sku} from the Atelier.`}
+          loading={deleting}
+          onConfirm={handleDelete}
+          onCancel={() => setDeleteTarget(null)}
+        />
+      )}
 
       <style>{`
         input::placeholder { color: #bbb; }

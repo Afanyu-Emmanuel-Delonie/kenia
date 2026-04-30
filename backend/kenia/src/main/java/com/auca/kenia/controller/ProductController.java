@@ -79,4 +79,11 @@ public class ProductController {
       @Valid @RequestBody TransferRequest req) {
     return productService.transferOwnership(id, req);
   }
+
+  @DeleteMapping("/{id}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @Operation(summary = "Delete a product permanently")
+  public void delete(@PathVariable Long id) {
+    productService.deleteProduct(id);
+  }
 }
