@@ -23,6 +23,8 @@ Zyra is a full-stack web application that digitises the entire lifecycle of a lu
 13. [Project Structure](#13-project-structure)
 14. [Coding Standards](#14-coding-standards)
 15. [Security Model](#15-security-model)
+16. [Software Test Plan](#16-software-test-plan)
+17. [Class Diagram Reference](#17-class-diagram-reference)
 
 ---
 
@@ -613,6 +615,85 @@ Zyra/
 | Container security | Backend runs as non-root user `Zyra` inside container |
 | Input validation | `@Valid` + Bean Validation annotations on all DTOs |
 
+## 16. Software Test Plan
+
+Zyra is tested through a mix of automated and manual checks so that both the backend rules and the user-facing workflows are verified.
+
+### Testing approach
+- `Unit tests` verify service logic, utility methods, and enum-based business rules.
+- `Integration tests` verify controllers, repositories, security rules, and PostgreSQL persistence together.
+- `UI tests` verify the main customer and staff journeys in the browser.
+- `Regression tests` are re-run after any fix to protect the most important flows: authentication, production tracking, store listings, orders, and inquiries.
+
+### Coverage summary
+
+| Area | What is tested | Priority |
+|---|---|---|
+| Authentication | Registration, login, password hashing, JWT generation | High |
+| Security | Public vs protected endpoints, role restrictions | High |
+| Materials | Create/update stock, low-stock logic, persistence | High |
+| Products | SKU generation, stage progression, audit logs, activation | High |
+| Store | Listing creation, public browsing, availability toggle | High |
+| Orders | Order placement, status updates, order tracking | High |
+| Inquiries | Public submission, reply, close workflow | Medium |
+| Dashboard | KPI totals, recent activity, alert values | Medium |
+| Frontend | Form validation, loading states, API response handling | Medium |
+
+### Current baseline
+The current automated baseline is the Spring Boot context-load test in `backend/zyra/src/test/java/com/auca/zyra/ZyraApplicationTests.java`. This proves the application boots successfully, and the plan above defines the deeper testing that should be added to fully verify the software.
+
+### Detailed plan
+The full test plan is documented in [docs/software-test-plan.md](./docs/software-test-plan.md).
+
+## 17. Class Diagram Reference
+
+The class diagram for Zyra should focus on the backend domain model, because that is where the business rules and relationships live.
+
+### Core classes to include
+
+| Class | Key attributes | Notes |
+|---|---|---|
+| `User` | `id`, `email`, `password`, `fullName`, `role`, `enabled`, `createdAt` | Implements Spring Security `UserDetails` |
+| `Material` | `id`, `name`, `category`, `stockQuantity`, `unit`, `lowStockThreshold`, `unitCost`, `provenance` | Has `isLowStock()` behaviour |
+| `Product` | `id`, `sku`, `name`, `atelierSite`, `currentStage`, `activated`, `activationOtp`, `qaPhotoPath`, `materialCost`, `createdAt`, `completedAt` | Main digital-twin entity |
+| `StageLog` | `id`, `stage`, `signedAt`, `notes` | Audit trail for product stage changes |
+| `OwnershipRecord` | `id`, `holderName`, `holderType`, `transferredAt`, `notes` | Ownership history for a product |
+| `StoreListing` | `id`, `title`, `description`, `price`, `currency`, `imagePaths`, `available`, `listedAt` | Public shop listing for an activated product |
+| `Order` | `id`, `reference`, `customerName`, `customerEmail`, `customerPhone`, `deliveryMethod`, `deliveryAddress`, `deliveryCity`, `deliveryCountry`, `postalCode`, `notes`, `totalAmount`, `currency`, `status`, `placedAt`, `updatedAt` | Captures the customer order lifecycle |
+| `Inquiry` | `id`, `senderName`, `senderEmail`, `senderPhone`, `message`, `reply`, `repliedAt`, `status`, `submittedAt` | Public customer inquiry |
+
+### Enums to include
+- `Role` with values `ROLE_ADMIN`, `ROLE_MANAGER`, `ROLE_ARTISAN`, `ROLE_QA`
+- `ProductStage` with values `CUTTING`, `STITCHING`, `HARDWARE`, `QA`, `ARCHIVE_READY`
+- `OrderStatus` with values `PENDING`, `CONFIRMED`, `SHIPPED`, `DELIVERED`, `CANCELLED`
+
+### Relationships and multiplicity
+
+| Source | Relationship | Target | Multiplicity | Meaning |
+|---|---|---|---|---|
+| `Product` | has many | `StageLog` | `1 to 0..*` | A product keeps a stage audit trail |
+| `Product` | has many | `OwnershipRecord` | `1 to 0..*` | A product keeps ownership history |
+| `Product` | has one | `StoreListing` | `1 to 0..1` | Only activated products may be listed |
+| `StageLog` | belongs to | `Product` | `1 to 1` | Every stage log points to one product |
+| `StageLog` | signed by | `User` | `1 to 1` | Every stage log is created by one staff user |
+| `OwnershipRecord` | belongs to | `Product` | `1 to 1` | Each ownership record belongs to one product |
+| `StoreListing` | references | `Product` | `1 to 1` | The listing wraps one activated product |
+| `StoreListing` | has many | `Order` | `1 to 0..*` | A listing can receive many orders |
+| `StoreListing` | has many | `Inquiry` | `1 to 0..*` | A listing can receive many inquiries |
+
+### Diagram notes
+- Use `Product` as the central class because it connects production, activation, ownership, and sales.
+- Show `StageLog` and `OwnershipRecord` as composition or strong aggregation from `Product`.
+- Keep DTOs, controllers, services, and repositories out of the main class diagram unless your lecturer wants architecture as well as domain classes.
+- Add stereotypes or notes for `UserDetails`, `@Entity`, and the role-based security behaviour if the diagram tool supports them.
+- If you want a fuller academic submission, you can create a second diagram for the layered architecture: Controller -> Service -> Repository -> Domain.
+
+### Suggested drawing order
+1. Draw `Product` in the centre.
+2. Connect `StageLog`, `OwnershipRecord`, and `StoreListing` to `Product`.
+3. Connect `Order` and `Inquiry` to `StoreListing`.
+4. Place `User` near `StageLog` because it signs production records.
+5. Add the enums beside the classes that use them.
+
 ---
 
-*Zyra — Where every stitch tells a story.*
