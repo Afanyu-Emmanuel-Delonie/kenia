@@ -38,6 +38,10 @@ import java.time.Instant;
 @RequiredArgsConstructor
 public class DataSeeder implements ApplicationRunner {
 
+  private static final String ADMIN_EMAIL = "admin@zyra.com";
+  private static final String ADMIN_PASSWORD = "KeniaAdmin2026!";
+  private static final String ADMIN_NAME = "Amara Diallo";
+
   private final UserRepository userRepository;
   private final MaterialRepository materialRepository;
   private final ProductRepository productRepository;
@@ -62,7 +66,7 @@ public class DataSeeder implements ApplicationRunner {
     if (userRepository.count() > 0) {
       return;
     }
-    createUser("admin@zyra.com", "Admin2026!", "Amara Diallo", Role.ROLE_ADMIN);
+    createUser(ADMIN_EMAIL, ADMIN_PASSWORD, ADMIN_NAME, Role.ROLE_ADMIN);
     createUser("manager@zyra.com", "Manager2026!", "Fatima Nkosi", Role.ROLE_MANAGER);
     createUser("artisan@zyra.com", "Artisan2026!", "Kwame Mensah", Role.ROLE_ARTISAN);
     createUser("qa@zyra.com", "QA2026!", "Zara Okonkwo", Role.ROLE_QA);
@@ -118,7 +122,7 @@ public class DataSeeder implements ApplicationRunner {
       return;
     }
 
-    User admin = ensureUser("admin@zyra.com", "Admin2026!", "Amara Diallo", Role.ROLE_ADMIN);
+    User admin = ensureUser(ADMIN_EMAIL, ADMIN_PASSWORD, ADMIN_NAME, Role.ROLE_ADMIN);
 
     Product obsidian = createProduct("KRN-2026-001", "Obsidian Tote", "Kigali Atelier", ProductStage.ARCHIVE_READY, true, new BigDecimal("485.00"), admin);
     createProduct("KRN-2026-002", "Ivory Clutch", "Kigali Atelier", ProductStage.ARCHIVE_READY, true, new BigDecimal("320.00"), admin);
@@ -274,7 +278,7 @@ public class DataSeeder implements ApplicationRunner {
       ProductStage stage, boolean activated, BigDecimal materialCost,
       String title, String description, BigDecimal price, String currency) {
     Product product = productRepository.findBySku(sku)
-        .orElseGet(() -> createProduct(sku, productName, atelierSite, stage, activated, materialCost, ensureUser("admin@zyra.com", "Admin2026!", "Amara Diallo", Role.ROLE_ADMIN)));
+        .orElseGet(() -> createProduct(sku, productName, atelierSite, stage, activated, materialCost, ensureUser(ADMIN_EMAIL, ADMIN_PASSWORD, ADMIN_NAME, Role.ROLE_ADMIN)));
 
     return storeListingRepository.findByProductId(product.getId())
         .orElseGet(() -> createListing(product, title, description, price, currency));
