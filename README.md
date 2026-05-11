@@ -345,7 +345,7 @@ docker compose up db -d
 
 ### 4. Run the backend
 ```bash
-cd backend/Zyra
+cd backend/kenia
 ./mvnw spring-boot:run
 # API available at http://localhost:8084/api/v1
 # Swagger UI at http://localhost:8084/api/v1/swagger-ui.html
@@ -372,7 +372,7 @@ Docker is a containerisation platform that packages an application and all its d
 
 A `Dockerfile` is a text file with instructions for building a Docker image. Zyra uses **multi-stage builds** to keep production images small:
 
-- **Backend Dockerfile** (`backend/Zyra/Dockerfile`):
+- **Backend Dockerfile** (`backend/kenia/Dockerfile`):
   - Stage 1 (`builder`): Uses `eclipse-temurin:21-jdk-alpine` to compile the Spring Boot app with Maven into a fat JAR.
   - Stage 2 (`runtime`): Uses `eclipse-temurin:21-jre-alpine` (smaller, no compiler) and copies only the JAR. Runs as a non-root user `Zyra` for security.
 
@@ -387,7 +387,7 @@ A `Dockerfile` is a text file with instructions for building a Docker image. Zyr
 | Service | Image | Port |
 |---|---|---|
 | `db` | `postgres:16-alpine` | 5432 (internal) |
-| `backend` | Built from `backend/Zyra/Dockerfile` | 8084 |
+| `backend` | Built from `backend/kenia/Dockerfile` | 8084 |
 | `frontend` | Built from `frontend/Dockerfile` | 80 |
 
 All three share a private Docker bridge network (`Zyra_net`). The backend waits for the database to pass its health check before starting. Persistent data is stored in named Docker volumes (`postgres_data`, `uploads_data`).
@@ -640,7 +640,7 @@ Zyra is tested through a mix of automated and manual checks so that both the bac
 | Frontend | Form validation, loading states, API response handling | Medium |
 
 ### Current baseline
-The current automated baseline is the Spring Boot context-load test in `backend/zyra/src/test/java/com/auca/zyra/ZyraApplicationTests.java`. This proves the application boots successfully, and the plan above defines the deeper testing that should be added to fully verify the software.
+The current automated baseline is the Spring Boot context-load test in `backend/kenia/src/test/java/com/auca/zyra/ZyraApplicationTests.java`. This proves the application boots successfully, and the plan above defines the deeper testing that should be added to fully verify the software.
 
 ### Detailed plan
 The full test plan is documented in [docs/software-test-plan.md](./docs/software-test-plan.md).
