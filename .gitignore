@@ -1,9 +1,11 @@
 # ── Secrets ───────────────────────────────────────────────────────────────────
 .env
-backend/zyra/.env
+.env.local
+.env.*.local
+backend/kenia/.env
 
 # ── Java / Maven ──────────────────────────────────────────────────────────────
-backend/zyra/target/
+backend/kenia/target/
 *.class
 *.jar
 *.war
@@ -15,8 +17,9 @@ frontend/node_modules/
 frontend/dist/
 frontend/.env
 frontend/.env.local
+node_modules/
 
-# ── Docker ────────────────────────────────────────────────────────────────────
+# ── Uploads (user-generated content) ─────────────────────────────────────────
 uploads/
 
 # ── IDE ───────────────────────────────────────────────────────────────────────
@@ -28,3 +31,7 @@ uploads/
 # ── OS ────────────────────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+*.log
+logs/

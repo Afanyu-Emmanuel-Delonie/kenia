@@ -18,7 +18,7 @@ public class HealthController {
     return ResponseEntity.ok(
         Map.of(
             "status", "ok",
-            "service", "kenia-backend",
+            "service", "zyra-backend",
             "timestamp", Instant.now().toString()));
   }
 }

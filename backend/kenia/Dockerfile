@@ -13,8 +13,8 @@ RUN ./mvnw package -DskipTests -q
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
-RUN addgroup -S kenia && adduser -S kenia -G kenia
-USER kenia
+RUN addgroup -S zyra && adduser -S zyra -G zyra
+USER zyra
 
 COPY --from=builder /app/target/*.jar app.jar
 

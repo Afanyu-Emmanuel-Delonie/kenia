@@ -153,7 +153,7 @@ The application will be tested using a combination of manual and automated testi
 - Risk: public workflows break after refactoring. Mitigation: re-test store, orders, and inquiries after every major change.
 
 ## 13. Current Automated Baseline
-The current backend test baseline is a Spring Boot context-load test in `backend/zyra/src/test/java/com/auca/zyra/ZyraApplicationTests.java`. That confirms the application context can start, and it should be expanded with the module tests listed above for stronger coverage.
+The current backend test baseline is a Spring Boot context-load test in `backend/kenia/src/test/java/com/auca/zyra/ZyraApplicationTests.java`. That confirms the application context can start, and it should be expanded with the module tests listed above for stronger coverage.
 
 ## 14. Acceptance Summary
 The software will be considered well tested when:
@@ -162,4 +162,3 @@ The software will be considered well tested when:
 - Data is saved and retrieved accurately from the database.
 - Public customer actions work without login where designed.
 - Regression tests pass after changes.
-
